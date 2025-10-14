@@ -1,56 +1,233 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🛒 Passepartout Utenti Carrello
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema full-stack per gestione utenti, carrello prodotti e dashboard amministrativa sviluppato con **Laravel 11** e **Vue 3**.
 
-## About Laravel
+## 🚀 Features Principali
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 👥 Gestione Utenti
+- ✅ Registrazione completa (nome, cognome, email, titolo studi, data/città nascita)
+- ✅ Login/Logout con autenticazione Sanctum
+- ✅ Modifica profilo utente
+- ✅ Reset password via email con token sicuro
+- ✅ Sistema ruoli scalabile (admin, user, business)
+- ✅ Middleware e policies per autorizzazioni
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🛍️ Carrello Prodotti  
+- ✅ Catalogo prodotti con dettagli completi
+- ✅ Aggiunta/rimozione prodotti dal carrello
+- ✅ Gestione quantità e calcolo totali
+- ✅ Area admin per CRUD prodotti
+- ✅ Upload immagini prodotti (storage locale)
+- ✅ Sistema scorte e disponibilità
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 📊 Dashboard Amministrativa
+- 🔄 Statistiche utenti registrati (grafici mensili)
+- 🔄 Top prodotti nei carrelli e bestseller
+- 🔄 Fatturato simulato per mese
+- 🔄 Distribuzione utenti per città/titolo studi
+- 🔄 Grafici interattivi con Chart.js
 
-## Learning Laravel
+## 🛠️ Stack Tecnologico
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Backend
+- **Laravel 11** (PHP 8.2+)
+- **MySQL** database
+- **Eloquent ORM** con Repository Pattern
+- **Laravel Sanctum** per autenticazione SPA
+- **Service Layer** per business logic
+- **Form Requests** per validazione
+- **Seeder e Factory** per dati di test
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Frontend  
+- **Vue 3** con Composition API
+- **Vue Router 4** per routing
+- **Pinia** per state management
+- **Chart.js** per grafici dashboard
+- **Axios** per chiamate API
+- **Vite** per build tool
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🏗️ Architettura
 
-## Laravel Sponsors
+Il progetto segue principi di **Clean Architecture** e **SOLID**:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+app/
+├── Http/
+│   ├── Controllers/Api/     # API Controllers
+│   └── Requests/           # Form Validation
+├── Models/                 # Eloquent Models
+├── Repositories/          # Repository Pattern
+├── Services/             # Business Logic
+└── Policies/            # Authorization Logic
+```
 
-### Premium Partners
+### Pattern Implementati
+- **Repository Pattern** per astrazione database
+- **Service Layer** per business logic
+- **Dependency Injection** per loose coupling
+- **Single Responsibility Principle**
+- **Form Request Objects** per validazione
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 💾 Database Schema
 
-## Contributing
+```sql
+users (id, name, cognome, email, titolo_studi, data_nascita, città_nascita)
+roles (id, name, display_name, description)  
+role_user (role_id, user_id) -- many-to-many
+products (id, nome, codice, descrizione, prezzo, immagine, scorte)
+carts (id, user_id, stato, ultimo_aggiornamento)
+cart_items (id, cart_id, product_id, quantità, prezzo_unitario)
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🚀 Setup Rapido (5 comandi)
 
-## Code of Conduct
+```bash
+# 1. Clone del repository
+git clone https://github.com/AngelKb81/passepartout-utenticarrello.git
+cd passepartout-utenticarrello
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 2. Installa dipendenze
+composer install && npm install
+
+# 3. Configura environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Setup database (modifica DB_* in .env)
+php artisan migrate --seed
+
+# 5. Avvia il progetto
+php artisan serve & npm run dev
+```
+
+## 🔧 Configurazione Database
+
+Modifica il file `.env` con le tue credenziali:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=passepartout_utenticarrello
+DB_USERNAME=root
+DB_PASSWORD=la_tua_password
+```
+
+## 👤 Credenziali Test
+
+### Admin
+- **Email:** admin@passepartout-utenticarrello.test  
+- **Password:** password
+
+### Utenti Standard
+- **Email:** giulia.bianchi@email.test  
+- **Email:** francesco.verde@email.test  
+- **Email:** chiara.neri@email.test  
+- **Password:** password (per tutti)
+
+## 📚 API Endpoints
+
+### Autenticazione
+```http
+POST /api/register          # Registrazione utente
+POST /api/login             # Login
+POST /api/logout            # Logout
+GET  /api/user              # Profilo utente corrente
+PUT  /api/user/profile      # Aggiorna profilo
+POST /api/password/reset    # Reset password
+```
+
+### Prodotti
+```http
+GET    /api/products         # Lista prodotti
+GET    /api/products/{id}    # Dettaglio prodotto
+POST   /api/products         # Crea prodotto (admin)
+PUT    /api/products/{id}    # Aggiorna prodotto (admin)
+DELETE /api/products/{id}    # Elimina prodotto (admin)
+GET    /api/products/search  # Ricerca prodotti
+```
+
+### Carrello
+```http
+GET    /api/cart            # Carrello corrente
+POST   /api/cart/add        # Aggiungi al carrello
+PUT    /api/cart/update     # Aggiorna quantità
+DELETE /api/cart/remove     # Rimuovi dal carrello
+DELETE /api/cart/clear      # Svuota carrello
+POST   /api/cart/checkout   # Finalizza ordine
+```
+
+### Dashboard Admin
+```http
+GET /api/admin/stats/users     # Statistiche utenti
+GET /api/admin/stats/products  # Statistiche prodotti  
+GET /api/admin/stats/revenue   # Fatturato mensile
+GET /api/admin/stats/charts    # Dati per grafici
+```
+
+## 🧪 Testing
+
+```bash
+# Esegui test PHPUnit
+php artisan test
+
+# Test specifici
+php artisan test --filter AuthTest
+php artisan test --filter ProductTest
+php artisan test --filter CartTest
+```
+
+## 🎯 Caratteristiche Tecniche
+
+### Sicurezza
+- ✅ Validazione input lato server
+- ✅ Protezione CSRF 
+- ✅ Autenticazione token-based
+- ✅ Autorizzazione basata su ruoli
+- ✅ Sanitizzazione dati
+
+### Performance
+- ✅ Query ottimizzate con Eloquent
+- ✅ Eager loading per relazioni
+- ✅ Caching configurabile
+- ✅ Asset bundling con Vite
+
+### Scalabilità
+- ✅ Repository Pattern per swap database
+- ✅ Service Layer per business logic
+- ✅ Dependency Injection
+- ✅ API RESTful strutturate
+
+## 🔮 Roadmap Future
+
+- [ ] Sistema notifiche real-time
+- [ ] Integrazione pagamenti Stripe
+- [ ] Export/Import prodotti CSV
+- [ ] Sistema recensioni prodotti
+- [ ] Multi-language support
+- [ ] Progressive Web App (PWA)
+- [ ] Docker containerization
+
+## 🤝 Contributi
+
+Progetto sviluppato come **code challenge** per dimostrare competenze full-stack con Laravel e Vue.js.
+
+### Scelte Architetturali
+
+1. **Repository Pattern**: Astrazione database per testabilità
+2. **Service Layer**: Business logic separata dai controller  
+3. **Form Requests**: Validazione centralizzata e riutilizzabile
+4. **Sanctum SPA**: Autenticazione stateless per Vue.js
+5. **Storage Locale**: Semplice per demo, facilmente estendibile
+
+## 📄 Licenza
+
+Open source - MIT License
+
+---
+
+**Sviluppato con ❤️ da Angelo Corbelli**  
+*Full-Stack Developer | Laravel & Vue.js Specialist*
 
 ## Security Vulnerabilities
 
