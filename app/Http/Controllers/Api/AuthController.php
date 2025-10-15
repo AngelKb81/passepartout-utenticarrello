@@ -28,7 +28,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         try {
-            $user = $this->userService->register($request->validated());
+            $user = $this->userService->registerUser($request->validated());
 
             // Invia notifica di benvenuto
             $user->notify(new \App\Notifications\WelcomeNotification());

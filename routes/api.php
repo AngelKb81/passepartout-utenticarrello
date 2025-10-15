@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,14 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::delete('/remove', [CartController::class, 'removeFromCart']);
     Route::delete('/clear', [CartController::class, 'clearCart']);
     Route::post('/checkout', [CartController::class, 'checkout']);
+});
+
+// Routes amministrative (richiedono autenticazione e ruolo admin)
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'getDashboardStats']);
+    Route::get('/users/stats', [AdminController::class, 'getUserStats']);
+    Route::get('/sales/stats', [AdminController::class, 'getSalesStats']);
+    Route::get('/users', [AdminController::class, 'getUsers']);
 });
 
 // Route per test API
