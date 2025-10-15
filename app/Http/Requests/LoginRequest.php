@@ -7,22 +7,34 @@ use Illuminate\Foundation\Http\FormRequest;
 class LoginRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Il login è pubblico, quindi sempre autorizzato.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Regole di validazione per il login.
      */
     public function rules(): array
     {
         return [
-            //
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
+        ];
+    }
+
+    /**
+     * Messaggi di errore personalizzati in italiano.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'L\'email è obbligatoria.',
+            'email.email' => 'Inserisci un indirizzo email valido.',
+            'password.required' => 'La password è obbligatoria.',
         ];
     }
 }

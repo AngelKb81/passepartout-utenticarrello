@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+// Tutte le routes sono gestite da Vue Router (SPA)
+Route::get('/{any}', function () {
     return view('welcome');
-});
+})->where('any', '.*');
