@@ -8,9 +8,10 @@
         <title>🎭 Passepartout - Sistema Gestione Utenti e Carrello</title>
         <meta name="description" content="Sistema completo di gestione utenti e carrello prodotti con dashboard amministrativa. Laravel 11 + Vue 3.">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+        <!-- Fonts: Inter da Google Fonts per tipografia moderna -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
         <!-- Styles / Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
