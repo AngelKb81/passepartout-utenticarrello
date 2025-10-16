@@ -17,7 +17,7 @@ class CartTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crea ruoli di base
         Role::create(['name' => 'admin', 'display_name' => 'Administrator']);
         Role::create(['name' => 'user', 'display_name' => 'User']);
@@ -30,13 +30,13 @@ class CartTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->getJson('/api/cart');
+            ->getJson('/api/cart');
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'cart' => ['id', 'user_id', 'items'],
-                     'total'
-                 ]);
+            ->assertJsonStructure([
+                'cart' => ['id', 'user_id', 'items'],
+                'total'
+            ]);
     }
 
     /** @test */
@@ -55,15 +55,15 @@ class CartTest extends TestCase
         $product = Product::factory()->create(['prezzo' => 50.00, 'scorte' => 10]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/cart/add', [
-                             'product_id' => $product->id,
-                             'quantity' => 2,
-                         ]);
+            ->postJson('/api/cart/add', [
+                'product_id' => $product->id,
+                'quantity' => 2,
+            ]);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Prodotto aggiunto al carrello'
-                 ]);
+            ->assertJson([
+                'message' => 'Prodotto aggiunto al carrello'
+            ]);
 
         $this->assertDatabaseHas('cart_items', [
             'product_id' => $product->id,
@@ -80,24 +80,24 @@ class CartTest extends TestCase
 
         // Prima aggiunta
         $this->withHeader('Authorization', 'Bearer ' . $token)
-             ->postJson('/api/cart/add', [
-                 'product_id' => $product->id,
-                 'quantity' => 2,
-             ]);
+            ->postJson('/api/cart/add', [
+                'product_id' => $product->id,
+                'quantity' => 2,
+            ]);
 
         // Seconda aggiunta dello stesso prodotto
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/cart/add', [
-                             'product_id' => $product->id,
-                             'quantity' => 3,
-                         ]);
+            ->postJson('/api/cart/add', [
+                'product_id' => $product->id,
+                'quantity' => 3,
+            ]);
 
         $response->assertStatus(200);
 
         // Verifica che la quantità sia 5 (2 + 3)
         $cart = Cart::where('user_id', $user->id)->first();
         $cartItem = $cart->items()->where('product_id', $product->id)->first();
-        
+
         $this->assertEquals(5, $cartItem->quantity);
     }
 
@@ -109,15 +109,15 @@ class CartTest extends TestCase
         $product = Product::factory()->create(['scorte' => 5]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/cart/add', [
-                             'product_id' => $product->id,
-                             'quantity' => 10, // Più delle scorte disponibili
-                         ]);
+            ->postJson('/api/cart/add', [
+                'product_id' => $product->id,
+                'quantity' => 10, // Più delle scorte disponibili
+            ]);
 
         $response->assertStatus(400)
-                 ->assertJson([
-                     'message' => 'Quantità non disponibile'
-                 ]);
+            ->assertJson([
+                'message' => 'Quantità non disponibile'
+            ]);
     }
 
     /** @test */
@@ -126,7 +126,7 @@ class CartTest extends TestCase
         $user = $this->createUser();
         $token = $user->createToken('test-token')->plainTextToken;
         $product = Product::factory()->create(['scorte' => 20]);
-        
+
         $cart = Cart::create(['user_id' => $user->id]);
         $cartItem = CartItem::create([
             'cart_id' => $cart->id,
@@ -136,9 +136,9 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->putJson("/api/cart/update/{$cartItem->id}", [
-                             'quantity' => 5,
-                         ]);
+            ->putJson("/api/cart/update/{$cartItem->id}", [
+                'quantity' => 5,
+            ]);
 
         $response->assertStatus(200);
 
@@ -154,7 +154,7 @@ class CartTest extends TestCase
         $user = $this->createUser();
         $token = $user->createToken('test-token')->plainTextToken;
         $product = Product::factory()->create();
-        
+
         $cart = Cart::create(['user_id' => $user->id]);
         $cartItem = CartItem::create([
             'cart_id' => $cart->id,
@@ -164,12 +164,12 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->deleteJson("/api/cart/remove/{$cartItem->id}");
+            ->deleteJson("/api/cart/remove/{$cartItem->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Prodotto rimosso dal carrello'
-                 ]);
+            ->assertJson([
+                'message' => 'Prodotto rimosso dal carrello'
+            ]);
 
         $this->assertDatabaseMissing('cart_items', [
             'id' => $cartItem->id,
@@ -182,7 +182,7 @@ class CartTest extends TestCase
         $user = $this->createUser();
         $token = $user->createToken('test-token')->plainTextToken;
         $product = Product::factory()->create(['prezzo' => 100.00, 'scorte' => 10]);
-        
+
         $cart = Cart::create(['user_id' => $user->id, 'stato' => 'attivo']);
         CartItem::create([
             'cart_id' => $cart->id,
@@ -192,12 +192,12 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/cart/checkout');
+            ->postJson('/api/cart/checkout');
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Ordine completato con successo'
-                 ]);
+            ->assertJson([
+                'message' => 'Ordine completato con successo'
+            ]);
 
         // Verifica che il carrello sia stato completato
         $this->assertDatabaseHas('carts', [
@@ -213,12 +213,12 @@ class CartTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/cart/checkout');
+            ->postJson('/api/cart/checkout');
 
         $response->assertStatus(400)
-                 ->assertJson([
-                     'message' => 'Il carrello è vuoto'
-                 ]);
+            ->assertJson([
+                'message' => 'Il carrello è vuoto'
+            ]);
     }
 
     /** @test */
@@ -226,10 +226,10 @@ class CartTest extends TestCase
     {
         $user = $this->createUser();
         $token = $user->createToken('test-token')->plainTextToken;
-        
+
         $product1 = Product::factory()->create(['prezzo' => 50.00]);
         $product2 = Product::factory()->create(['prezzo' => 30.00]);
-        
+
         $cart = Cart::create(['user_id' => $user->id]);
         CartItem::create([
             'cart_id' => $cart->id,
@@ -245,12 +245,12 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->getJson('/api/cart');
+            ->getJson('/api/cart');
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'total' => 130.00 // (50*2) + (30*1)
-                 ]);
+            ->assertJson([
+                'total' => 130.00 // (50*2) + (30*1)
+            ]);
     }
 
     /** @test */
@@ -259,7 +259,7 @@ class CartTest extends TestCase
         $user1 = $this->createUser();
         $user2 = $this->createUser();
         $token1 = $user1->createToken('test-token')->plainTextToken;
-        
+
         $product = Product::factory()->create();
         $cart2 = Cart::create(['user_id' => $user2->id]);
         $cartItem2 = CartItem::create([
@@ -270,7 +270,7 @@ class CartTest extends TestCase
         ]);
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token1)
-                         ->deleteJson("/api/cart/remove/{$cartItem2->id}");
+            ->deleteJson("/api/cart/remove/{$cartItem2->id}");
 
         $response->assertStatus(403);
     }

@@ -15,7 +15,7 @@ class AuthenticationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crea ruoli di base
         Role::create(['name' => 'admin', 'display_name' => 'Administrator']);
         Role::create(['name' => 'user', 'display_name' => 'User']);
@@ -40,10 +40,10 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson('/api/register', $userData);
 
         $response->assertStatus(201)
-                 ->assertJsonStructure([
-                     'user' => ['id', 'name', 'email'],
-                     'token'
-                 ]);
+            ->assertJsonStructure([
+                'user' => ['id', 'name', 'email'],
+                'token'
+            ]);
 
         $this->assertDatabaseHas('users', [
             'email' => $userData['email'],
@@ -64,7 +64,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson('/api/register', $userData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 
     /** @test */
@@ -80,7 +80,7 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson('/api/register', $userData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['password']);
+            ->assertJsonValidationErrors(['password']);
     }
 
     /** @test */
@@ -97,10 +97,10 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'user' => ['id', 'name', 'email'],
-                     'token'
-                 ]);
+            ->assertJsonStructure([
+                'user' => ['id', 'name', 'email'],
+                'token'
+            ]);
     }
 
     /** @test */
@@ -117,9 +117,9 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(401)
-                 ->assertJson([
-                     'message' => 'Credenziali non valide'
-                 ]);
+            ->assertJson([
+                'message' => 'Credenziali non valide'
+            ]);
     }
 
     /** @test */
@@ -129,14 +129,14 @@ class AuthenticationTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->getJson('/api/user');
+            ->getJson('/api/user');
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'id' => $user->id,
-                     'name' => $user->name,
-                     'email' => $user->email,
-                 ]);
+            ->assertJson([
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]);
     }
 
     /** @test */
@@ -154,12 +154,12 @@ class AuthenticationTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/logout');
+            ->postJson('/api/logout');
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'message' => 'Logout effettuato con successo'
-                 ]);
+            ->assertJson([
+                'message' => 'Logout effettuato con successo'
+            ]);
 
         // Verifica che il token sia stato revocato
         $this->assertCount(0, $user->tokens);
@@ -191,6 +191,6 @@ class AuthenticationTest extends TestCase
         $response = $this->postJson('/api/register', $userData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['email']);
+            ->assertJsonValidationErrors(['email']);
     }
 }

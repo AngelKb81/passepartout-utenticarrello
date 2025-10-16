@@ -16,7 +16,7 @@ class ProductTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crea ruoli di base
         Role::create(['name' => 'admin', 'display_name' => 'Administrator']);
         Role::create(['name' => 'user', 'display_name' => 'User']);
@@ -30,7 +30,7 @@ class ProductTest extends TestCase
         $response = $this->getJson('/api/products');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(5, 'data');
+            ->assertJsonCount(5, 'data');
     }
 
     /** @test */
@@ -44,11 +44,11 @@ class ProductTest extends TestCase
         $response = $this->getJson("/api/products/{$product->id}");
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'id' => $product->id,
-                     'nome' => 'Test Product',
-                     'prezzo' => '99.99',
-                 ]);
+            ->assertJson([
+                'id' => $product->id,
+                'nome' => 'Test Product',
+                'prezzo' => '99.99',
+            ]);
     }
 
     /** @test */
@@ -75,13 +75,13 @@ class ProductTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/products', $productData);
+            ->postJson('/api/products', $productData);
 
         $response->assertStatus(201)
-                 ->assertJson([
-                     'nome' => 'New Product',
-                     'prezzo' => '49.99',
-                 ]);
+            ->assertJson([
+                'nome' => 'New Product',
+                'prezzo' => '49.99',
+            ]);
 
         $this->assertDatabaseHas('products', [
             'nome' => 'New Product',
@@ -101,7 +101,7 @@ class ProductTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/products', $productData);
+            ->postJson('/api/products', $productData);
 
         $response->assertStatus(403);
     }
@@ -119,12 +119,12 @@ class ProductTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->putJson("/api/products/{$product->id}", $updateData);
+            ->putJson("/api/products/{$product->id}", $updateData);
 
         $response->assertStatus(200)
-                 ->assertJson([
-                     'nome' => 'Updated Name',
-                 ]);
+            ->assertJson([
+                'nome' => 'Updated Name',
+            ]);
 
         $this->assertDatabaseHas('products', [
             'id' => $product->id,
@@ -140,7 +140,7 @@ class ProductTest extends TestCase
         $product = Product::factory()->create();
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->deleteJson("/api/products/{$product->id}");
+            ->deleteJson("/api/products/{$product->id}");
 
         $response->assertStatus(200);
         $this->assertSoftDeleted('products', ['id' => $product->id]);
@@ -158,10 +158,10 @@ class ProductTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/products', $invalidData);
+            ->postJson('/api/products', $invalidData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['nome', 'prezzo']);
+            ->assertJsonValidationErrors(['nome', 'prezzo']);
     }
 
     /** @test */
@@ -174,7 +174,7 @@ class ProductTest extends TestCase
         $response = $this->getJson('/api/products?categoria=Elettronica');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'data');
     }
 
     /** @test */
@@ -187,7 +187,7 @@ class ProductTest extends TestCase
         $response = $this->getJson('/api/products?search=iPhone');
 
         $response->assertStatus(200);
-        
+
         $products = $response->json('data');
         $this->assertCount(2, $products);
     }
@@ -204,10 +204,10 @@ class ProductTest extends TestCase
         ];
 
         $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-                         ->postJson('/api/products', $productData);
+            ->postJson('/api/products', $productData);
 
         $response->assertStatus(422)
-                 ->assertJsonValidationErrors(['prezzo']);
+            ->assertJsonValidationErrors(['prezzo']);
     }
 
     // Helper methods
