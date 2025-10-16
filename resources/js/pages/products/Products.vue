@@ -28,7 +28,7 @@
           <!-- Categoria -->
           <div class="filter-item">
             <label for="categoria">Categoria</label>
-            <select v-model="filters.categoria" id="categoria" @change="loadProducts">
+            <select v-model="filters.categoria" id="categoria" @change="pagination.current_page = 1; loadProducts(1)">
               <option value="">Tutte</option>
               <option value="elettronica">Elettronica</option>
               <option value="abbigliamento">Abbigliamento</option>
@@ -41,7 +41,7 @@
           <!-- Ordinamento -->
           <div class="filter-item">
             <label for="sort">Ordina per</label>
-            <select v-model="filters.sort" id="sort" @change="loadProducts">
+            <select v-model="filters.sort" id="sort" @change="pagination.current_page = 1; loadProducts(1)">
               <option value="nome_asc">Nome A-Z</option>
               <option value="nome_desc">Nome Z-A</option>
               <option value="prezzo_asc">Prezzo ↑</option>
@@ -202,6 +202,9 @@ const loadProducts = async (page = 1) => {
   try {
     loading.value = true
     
+    // Aggiorna pagina corrente
+    pagination.current_page = page
+    
     // Costruisci parametri query
     const params = new URLSearchParams({
       page: page.toString(),
@@ -216,28 +219,36 @@ const loadProducts = async (page = 1) => {
     const response = await axios.get(`/api/products?${params}`)
     
     // Estrai prodotti dalla risposta
-    products.value = response.data.data || response.data.products || response.data || []
+    const productsData = response.data.data || response.data.products || []
     
-    // Aggiorna paginazione se presente
-    if (response.data.meta) {
-      pagination.current_page = response.data.meta.current_page
-      pagination.per_page = response.data.meta.per_page
-      pagination.total = response.data.meta.total
-      pagination.last_page = response.data.meta.last_page
-    } else if (response.data.pagination) {
-      Object.assign(pagination, response.data.pagination)
+    // Verifica se ci sono prodotti reali
+    if (productsData.length === 0 && page === 1) {
+      console.warn('Nessun prodotto dall\'API, carico dati di esempio')
+      loadMockProducts()
+      return
     }
     
-    console.log('Prodotti caricati:', products.value.length)
+    products.value = productsData
+    
+    // Aggiorna paginazione se presente
+    if (response.data.pagination) {
+      pagination.current_page = response.data.pagination.current_page || page
+      pagination.per_page = response.data.pagination.per_page || 12
+      pagination.total = response.data.pagination.total || 0
+      pagination.last_page = response.data.pagination.last_page || 1
+    }
+    
+    console.log('Prodotti caricati dall\'API:', products.value.length)
     
   } catch (error) {
     console.error('Errore caricamento prodotti:', error)
-    products.value = []
     
-    // Se l'endpoint API non esiste, carica prodotti di esempio
-    if (error.response?.status === 404) {
-      console.warn('Endpoint /api/products non trovato, carico dati di esempio')
+    // Carica prodotti di esempio solo se è la prima pagina
+    if (page === 1) {
+      console.warn('Carico dati di esempio per fallback')
       loadMockProducts()
+    } else {
+      products.value = []
     }
   } finally {
     loading.value = false
@@ -246,83 +257,166 @@ const loadProducts = async (page = 1) => {
 
 // Carica prodotti di esempio (fallback)
 const loadMockProducts = () => {
-  products.value = [
+  // Prodotti mock completi e realistici
+  const allMockProducts = [
     {
       id: 1,
       nome: 'Laptop Dell XPS 13',
-      descrizione: 'Laptop ultraleggero con processore Intel Core i7',
+      descrizione: 'Laptop ultraleggero con processore Intel Core i7, 16GB RAM, SSD 512GB',
       prezzo: 1299.99,
       categoria: 'elettronica',
       quantita: 15,
       disponibile: true,
-      immagine: '/images/products/laptop.jpg'
+      immagine: 'https://via.placeholder.com/300x300/2563eb/ffffff?text=Laptop'
     },
     {
       id: 2,
       nome: 'Smartphone Samsung Galaxy S21',
-      descrizione: 'Smartphone 5G con fotocamera da 64MP',
+      descrizione: 'Smartphone 5G con fotocamera da 64MP e display AMOLED 6.2"',
       prezzo: 799.99,
       categoria: 'elettronica',
-      quantita: 3,
+      quantita: 8,
       disponibile: true,
-      immagine: '/images/products/phone.jpg'
+      immagine: 'https://via.placeholder.com/300x300/10b981/ffffff?text=Phone'
     },
     {
       id: 3,
       nome: 'Cuffie Sony WH-1000XM4',
-      descrizione: 'Cuffie wireless con cancellazione del rumore',
+      descrizione: 'Cuffie wireless con cancellazione attiva del rumore e autonomia 30h',
       prezzo: 349.99,
       categoria: 'elettronica',
-      quantita: 0,
-      disponibile: false,
-      immagine: '/images/products/headphones.jpg'
+      quantita: 4,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/8b5cf6/ffffff?text=Cuffie'
     },
     {
       id: 4,
       nome: 'T-shirt Nike Sportswear',
-      descrizione: 'Maglietta in cotone 100% con logo Nike',
+      descrizione: 'Maglietta in cotone 100% con logo Nike, disponibile in vari colori',
       prezzo: 29.99,
       categoria: 'abbigliamento',
       quantita: 50,
       disponibile: true,
-      immagine: '/images/products/tshirt.jpg'
+      immagine: 'https://via.placeholder.com/300x300/ef4444/ffffff?text=T-Shirt'
     },
     {
       id: 5,
       nome: 'Jeans Levi\'s 501',
-      descrizione: 'Jeans classici a vita alta in denim blu',
+      descrizione: 'Jeans classici a vita alta in denim blu 100% cotone',
       prezzo: 89.99,
       categoria: 'abbigliamento',
       quantita: 25,
       disponibile: true,
-      immagine: '/images/products/jeans.jpg'
+      immagine: 'https://via.placeholder.com/300x300/6366f1/ffffff?text=Jeans'
     },
     {
       id: 6,
       nome: 'Sneakers Adidas Ultraboost',
-      descrizione: 'Scarpe da running con tecnologia Boost',
+      descrizione: 'Scarpe da running con tecnologia Boost per massimo comfort',
       prezzo: 179.99,
       categoria: 'sport',
       quantita: 12,
       disponibile: true,
-      immagine: '/images/products/sneakers.jpg'
+      immagine: 'https://via.placeholder.com/300x300/f59e0b/ffffff?text=Sneakers'
+    },
+    {
+      id: 7,
+      nome: 'Tablet Apple iPad Air',
+      descrizione: 'Tablet con chip M1, display Liquid Retina 10.9" e supporto Apple Pencil',
+      prezzo: 649.99,
+      categoria: 'elettronica',
+      quantita: 3,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/3b82f6/ffffff?text=Tablet'
+    },
+    {
+      id: 8,
+      nome: 'Zaino The North Face',
+      descrizione: 'Zaino tecnico impermeabile 30L ideale per trekking e viaggi',
+      prezzo: 119.99,
+      categoria: 'sport',
+      quantita: 18,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/14b8a6/ffffff?text=Zaino'
+    },
+    {
+      id: 9,
+      nome: 'Libro "Clean Code"',
+      descrizione: 'Manuale di sviluppo software agile di Robert C. Martin',
+      prezzo: 39.99,
+      categoria: 'libri',
+      quantita: 30,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/84cc16/ffffff?text=Libro'
+    },
+    {
+      id: 10,
+      nome: 'Lampada LED Smart',
+      descrizione: 'Lampada da tavolo intelligente con controllo da app e 16 milioni di colori',
+      prezzo: 59.99,
+      categoria: 'casa',
+      quantita: 20,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/eab308/ffffff?text=Lampada'
+    },
+    {
+      id: 11,
+      nome: 'Mouse Logitech MX Master 3',
+      descrizione: 'Mouse wireless ergonomico con sensore 4000 DPI',
+      prezzo: 99.99,
+      categoria: 'elettronica',
+      quantita: 2,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/06b6d4/ffffff?text=Mouse'
+    },
+    {
+      id: 12,
+      nome: 'Bottiglia Termica',
+      descrizione: 'Bottiglia in acciaio inox che mantiene il caldo/freddo per 24h',
+      prezzo: 24.99,
+      categoria: 'sport',
+      quantita: 45,
+      disponibile: true,
+      immagine: 'https://via.placeholder.com/300x300/a855f7/ffffff?text=Bottiglia'
     }
   ]
   
-  // Applica filtri ai prodotti mock
+  // Copia i prodotti per applicare filtri
+  let filteredProducts = [...allMockProducts]
+  
+  // Applica filtri
   if (filters.categoria) {
-    products.value = products.value.filter(p => p.categoria === filters.categoria)
+    filteredProducts = filteredProducts.filter(p => p.categoria === filters.categoria)
   }
   if (filters.search) {
     const search = filters.search.toLowerCase()
-    products.value = products.value.filter(p => 
+    filteredProducts = filteredProducts.filter(p => 
       p.nome.toLowerCase().includes(search) || 
       p.descrizione.toLowerCase().includes(search)
     )
   }
   
-  pagination.total = products.value.length
-  pagination.last_page = Math.ceil(products.value.length / pagination.per_page)
+  // Applica ordinamento
+  if (filters.sort === 'nome_asc') {
+    filteredProducts.sort((a, b) => a.nome.localeCompare(b.nome))
+  } else if (filters.sort === 'nome_desc') {
+    filteredProducts.sort((a, b) => b.nome.localeCompare(a.nome))
+  } else if (filters.sort === 'prezzo_asc') {
+    filteredProducts.sort((a, b) => a.prezzo - b.prezzo)
+  } else if (filters.sort === 'prezzo_desc') {
+    filteredProducts.sort((a, b) => b.prezzo - a.prezzo)
+  }
+  
+  // Aggiorna paginazione
+  pagination.total = filteredProducts.length
+  pagination.last_page = Math.ceil(filteredProducts.length / pagination.per_page)
+  
+  // Pagina i risultati
+  const start = (pagination.current_page - 1) * pagination.per_page
+  const end = start + pagination.per_page
+  products.value = filteredProducts.slice(start, end)
+  
+  console.log('Prodotti mock caricati:', products.value.length, 'di', filteredProducts.length)
 }
 
 // Aggiungi al carrello veloce
@@ -367,14 +461,17 @@ const goToPage = (page) => {
 // Rimuovi singolo filtro
 const clearFilter = (filterName) => {
   filters[filterName] = ''
-  loadProducts()
+  pagination.current_page = 1
+  loadProducts(1)
 }
 
 // Rimuovi tutti i filtri
 const clearAllFilters = () => {
   filters.search = ''
   filters.categoria = ''
-  loadProducts()
+  filters.sort = 'nome_asc'
+  pagination.current_page = 1
+  loadProducts(1)
 }
 
 // Ricerca con debounce (attendi 500ms dopo l'ultima digitazione)
@@ -382,21 +479,39 @@ let searchTimeout = null
 const debouncedSearch = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
-    loadProducts()
+    pagination.current_page = 1
+    loadProducts(1)
   }, 500)
 }
 
 // Ottieni URL immagine prodotto
 const getProductImage = (product) => {
-  if (product.immagine && product.immagine.startsWith('/images/')) {
-    return product.immagine
+  // Se ha già un URL completo (http/https) o placeholder, usalo direttamente
+  if (product.immagine) {
+    if (product.immagine.startsWith('http://') || product.immagine.startsWith('https://')) {
+      return product.immagine
+    }
+    if (product.immagine.startsWith('/images/')) {
+      return product.immagine
+    }
   }
-  return '/images/products/default-product.jpg'
+  // Fallback con placeholder unico per ID prodotto
+  const colors = ['2563eb', '10b981', '8b5cf6', 'ef4444', 'f59e0b', '06b6d4']
+  const color = colors[product.id % colors.length]
+  return `https://via.placeholder.com/300x300/${color}/ffffff?text=Prodotto+${product.id}`
 }
 
-// Gestisci errore caricamento immagine
+// Gestisci errore caricamento immagine (evita loop infinito)
 const handleImageError = (event) => {
-  event.target.src = '/images/products/default-product.jpg'
+  const img = event.target
+  // Controlla se abbiamo già provato il fallback per evitare loop
+  if (!img.dataset.fallbackAttempted) {
+    img.dataset.fallbackAttempted = 'true'
+    const productId = img.alt.match(/\d+/) ? img.alt.match(/\d+/)[0] : '0'
+    const colors = ['2563eb', '10b981', '8b5cf6', 'ef4444', 'f59e0b', '06b6d4']
+    const color = colors[parseInt(productId) % colors.length]
+    img.src = `https://via.placeholder.com/300x300/${color}/ffffff?text=Prodotto`
+  }
 }
 
 // Formatta prezzo in formato italiano
