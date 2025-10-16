@@ -146,9 +146,7 @@
               </router-link>
             </div>
           </div>
-            </div>
-          </div>
-
+          
           <!-- Mobile menu button -->
           <div class="md:hidden">
             <button @click="showMobileMenu = !showMobileMenu" 
