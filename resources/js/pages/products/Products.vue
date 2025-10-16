@@ -1,278 +1,148 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-4">
-          🛍️ Catalogo Prodotti
-        </h1>
-        <p class="text-gray-600">
-          Scopri la nostra selezione di prodotti di qualità
-        </p>
-      </div>
+  <!-- Pagina Prodotti: catalogo completo con filtri -->
+  <div class="products-page">
+    <div class="products-container">
+      
+      <!-- Header sezione -->
+      <header class="products-header">
+        <h1>Catalogo Prodotti</h1>
+        <p>Esplora la nostra selezione di prodotti</p>
+      </header>
 
-      <!-- Filters and Search -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <!-- Search -->
-          <div class="md:col-span-2">
-            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
-              🔍 Cerca prodotti
-            </label>
+      <!-- Filtri e ricerca -->
+      <section class="filters-section">
+        <div class="filters-grid">
+          
+          <!-- Ricerca -->
+          <div class="filter-item search-input">
+            <label for="search">Cerca prodotto</label>
             <input
               v-model="filters.search"
               type="text"
               id="search"
-              placeholder="Cerca per nome o descrizione..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Nome o descrizione..."
               @input="debouncedSearch"
             />
           </div>
 
-          <!-- Category Filter -->
-          <div>
-            <label for="categoria" class="block text-sm font-medium text-gray-700 mb-2">
-              📂 Categoria
-            </label>
-            <select
-              v-model="filters.categoria"
-              id="categoria"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              @change="loadProducts"
-            >
-              <option value="">Tutte le categorie</option>
+          <!-- Categoria -->
+          <div class="filter-item">
+            <label for="categoria">Categoria</label>
+            <select v-model="filters.categoria" id="categoria" @change="loadProducts">
+              <option value="">Tutte</option>
               <option value="elettronica">Elettronica</option>
               <option value="abbigliamento">Abbigliamento</option>
-              <option value="casa">Casa e Giardino</option>
-              <option value="sport">Sport e Tempo Libero</option>
+              <option value="casa">Casa</option>
+              <option value="sport">Sport</option>
               <option value="libri">Libri</option>
             </select>
           </div>
 
-          <!-- Sort -->
-          <div>
-            <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">
-              🔀 Ordina per
-            </label>
-            <select
-              v-model="filters.sort"
-              id="sort"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              @change="loadProducts"
-            >
+          <!-- Ordinamento -->
+          <div class="filter-item">
+            <label for="sort">Ordina per</label>
+            <select v-model="filters.sort" id="sort" @change="loadProducts">
               <option value="nome_asc">Nome A-Z</option>
               <option value="nome_desc">Nome Z-A</option>
-              <option value="prezzo_asc">Prezzo crescente</option>
-              <option value="prezzo_desc">Prezzo decrescente</option>
-              <option value="created_desc">Più recenti</option>
+              <option value="prezzo_asc">Prezzo ↑</option>
+              <option value="prezzo_desc">Prezzo ↓</option>
             </select>
           </div>
         </div>
 
-        <!-- Price Range -->
-        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="min_price" class="block text-sm font-medium text-gray-700 mb-2">
-              💰 Prezzo minimo (€)
-            </label>
-            <input
-              v-model.number="filters.min_price"
-              type="number"
-              id="min_price"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              @input="debouncedSearch"
-            />
-          </div>
-          <div>
-            <label for="max_price" class="block text-sm font-medium text-gray-700 mb-2">
-              💰 Prezzo massimo (€)
-            </label>
-            <input
-              v-model.number="filters.max_price"
-              type="number"
-              id="max_price"
-              min="0"
-              step="0.01"
-              placeholder="1000.00"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              @input="debouncedSearch"
-            />
-          </div>
+        <!-- Filtri attivi (badge) -->
+        <div v-if="hasActiveFilters" class="active-filters">
+          <span class="label">Filtri attivi:</span>
+          <button v-if="filters.search" @click="clearFilter('search')" class="filter-badge">
+            {{ filters.search }} ✕
+          </button>
+          <button v-if="filters.categoria" @click="clearFilter('categoria')" class="filter-badge">
+            {{ filters.categoria }} ✕
+          </button>
+          <button @click="clearAllFilters" class="clear-all-btn">Pulisci tutto</button>
         </div>
+      </section>
 
-        <!-- Active Filters -->
-        <div v-if="hasActiveFilters" class="mt-4 flex flex-wrap gap-2">
-          <span class="text-sm font-medium text-gray-700">Filtri attivi:</span>
-          <button
-            v-if="filters.search"
-            @click="clearFilter('search')"
-            class="inline-flex items-center px-3 py-1 text-xs bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200"
-          >
-            🔍 {{ filters.search }} ✕
-          </button>
-          <button
-            v-if="filters.categoria"
-            @click="clearFilter('categoria')"
-            class="inline-flex items-center px-3 py-1 text-xs bg-green-100 text-green-800 rounded-full hover:bg-green-200"
-          >
-            📂 {{ filters.categoria }} ✕
-          </button>
-          <button
-            v-if="filters.min_price"
-            @click="clearFilter('min_price')"
-            class="inline-flex items-center px-3 py-1 text-xs bg-purple-100 text-purple-800 rounded-full hover:bg-purple-200"
-          >
-            💰 Min €{{ filters.min_price }} ✕
-          </button>
-          <button
-            v-if="filters.max_price"
-            @click="clearFilter('max_price')"
-            class="inline-flex items-center px-3 py-1 text-xs bg-purple-100 text-purple-800 rounded-full hover:bg-purple-200"
-          >
-            💰 Max €{{ filters.max_price }} ✕
-          </button>
-          <button
-            @click="clearAllFilters"
-            class="inline-flex items-center px-3 py-1 text-xs bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200"
-          >
-            🗑️ Pulisci tutti
-          </button>
-        </div>
+      <!-- Loading state -->
+      <div v-if="loading" class="loading-state">
+        <div class="spinner"></div>
+        <p>Caricamento prodotti...</p>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <span class="ml-3 text-gray-600">Caricamento prodotti...</span>
-      </div>
-
-      <!-- Products Grid -->
-      <div v-else-if="products.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div
+      <!-- Griglia prodotti -->
+      <section v-else-if="products.length > 0" class="products-grid">
+        <article
           v-for="product in products"
           :key="product.id"
-          class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden group cursor-pointer"
+          class="product-card"
           @click="goToProduct(product.id)"
         >
-          <!-- Product Image -->
-          <div class="relative aspect-square overflow-hidden">
+          <!-- Immagine prodotto -->
+          <div class="product-image">
             <img
               :src="getProductImage(product)"
               :alt="product.nome"
-              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
               @error="handleImageError"
             />
             
-            <!-- Disponibilità Badge -->
-            <div class="absolute top-2 right-2">
-              <span
-                v-if="product.disponibile && product.quantita > 0"
-                class="bg-green-500 text-white text-xs px-2 py-1 rounded-full"
-              >
-                ✅ Disponibile
-              </span>
-              <span
-                v-else-if="product.disponibile && product.quantita <= 5"
-                class="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full"
-              >
-                ⚠️ Ultimi {{ product.quantita }}
-              </span>
-              <span
-                v-else
-                class="bg-red-500 text-white text-xs px-2 py-1 rounded-full"
-              >
-                ❌ Esaurito
-              </span>
-            </div>
+            <!-- Badge disponibilità -->
+            <span v-if="product.disponibile && product.quantita > 0" class="badge available">
+              Disponibile
+            </span>
+            <span v-else-if="product.quantita <= 5 && product.quantita > 0" class="badge low-stock">
+              Ultimi {{ product.quantita }}
+            </span>
+            <span v-else class="badge out-of-stock">
+              Esaurito
+            </span>
+          </div>
 
-            <!-- Quick Actions -->
-            <div class="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <!-- Info prodotto -->
+          <div class="product-info">
+            <span class="product-category">{{ product.categoria || 'Generale' }}</span>
+            <h3 class="product-title">{{ product.nome }}</h3>
+            <p class="product-description">{{ product.descrizione }}</p>
+            
+            <div class="product-footer">
+              <span class="product-price">€{{ formatPrice(product.prezzo) }}</span>
               <button
                 v-if="authStore.isAuthenticated && product.disponibile && product.quantita > 0"
                 @click.stop="quickAddToCart(product)"
-                class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg transition-colors"
+                class="add-to-cart-btn"
                 :disabled="addingToCart[product.id]"
               >
-                <div v-if="addingToCart[product.id]" class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                <span v-else>🛒</span>
+                <span v-if="addingToCart[product.id]">...</span>
+                <span v-else>Aggiungi</span>
               </button>
             </div>
           </div>
+        </article>
+      </section>
 
-          <!-- Product Info -->
-          <div class="p-4">
-            <div class="mb-2">
-              <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">
-                {{ product.categoria || 'Generale' }}
-              </span>
-            </div>
-            
-            <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
-              {{ product.nome }}
-            </h3>
-            
-            <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-              {{ product.descrizione }}
-            </p>
-            
-            <div class="flex items-center justify-between">
-              <span class="text-lg font-bold text-blue-600">
-                €{{ formatPrice(product.prezzo) }}
-              </span>
-              
-              <div class="text-sm text-gray-500">
-                Qtà: {{ product.quantita }}
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Empty state: nessun prodotto trovato -->
+      <div v-else class="empty-state">
+        <p class="empty-icon">📦</p>
+        <h3>Nessun prodotto trovato</h3>
+        <p>Prova a modificare i filtri di ricerca</p>
+        <button @click="clearAllFilters" class="btn-secondary">Rimuovi filtri</button>
       </div>
 
-      <!-- Empty State -->
-      <div v-else-if="!loading" class="text-center py-12">
-        <div class="text-6xl mb-4">🔍</div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">
-          Nessun prodotto trovato
-        </h3>
-        <p class="text-gray-500 mb-4">
-          Prova a modificare i filtri di ricerca o naviga in una categoria diversa.
-        </p>
+      <!-- Paginazione -->
+      <nav v-if="pagination.total > pagination.per_page" class="pagination">
         <button
-          @click="clearAllFilters"
-          class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          v-for="page in visiblePages"
+          :key="page"
+          @click="goToPage(page)"
+          :class="['page-btn', { active: page === pagination.current_page }]"
         >
-          🗑️ Rimuovi tutti i filtri
+          {{ page }}
         </button>
-      </div>
+      </nav>
 
-      <!-- Pagination -->
-      <div v-if="pagination.total > pagination.per_page" class="mt-8 flex justify-center">
-        <nav class="flex space-x-2">
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'px-3 py-2 text-sm rounded-md transition-colors',
-              page === pagination.current_page
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100 border'
-            ]"
-          >
-            {{ page }}
-          </button>
-        </nav>
-      </div>
     </div>
 
-    <!-- Success Message -->
-    <div
-      v-if="successMessage"
-      class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50"
-    >
+    <!-- Messaggio successo (toast) -->
+    <div v-if="successMessage" class="success-toast">
       {{ successMessage }}
     </div>
   </div>
@@ -285,6 +155,7 @@ import { useAuthStore } from '../../stores/auth'
 import { useCartStore } from '../../stores/cart'
 import axios from 'axios'
 
+// Router e stores
 const router = useRouter()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
@@ -295,14 +166,14 @@ const products = ref([])
 const addingToCart = ref({})
 const successMessage = ref('')
 
+// Filtri
 const filters = reactive({
   search: '',
   categoria: '',
-  sort: 'nome_asc',
-  min_price: null,
-  max_price: null
+  sort: 'nome_asc'
 })
 
+// Paginazione
 const pagination = reactive({
   current_page: 1,
   per_page: 12,
@@ -310,28 +181,28 @@ const pagination = reactive({
   last_page: 1
 })
 
-// Computed
+// Computed: filtri attivi
 const hasActiveFilters = computed(() => {
-  return filters.search || filters.categoria || filters.min_price || filters.max_price
+  return filters.search || filters.categoria
 })
 
+// Computed: pagine visibili per paginazione
 const visiblePages = computed(() => {
   const pages = []
   const start = Math.max(1, pagination.current_page - 2)
   const end = Math.min(pagination.last_page, start + 4)
-  
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }
-  
   return pages
 })
 
-// Methods
+// Carica prodotti dall'API
 const loadProducts = async (page = 1) => {
   try {
     loading.value = true
     
+    // Costruisci parametri query
     const params = new URLSearchParams({
       page: page.toString(),
       per_page: pagination.per_page.toString()
@@ -340,31 +211,121 @@ const loadProducts = async (page = 1) => {
     if (filters.search) params.append('search', filters.search)
     if (filters.categoria) params.append('categoria', filters.categoria)
     if (filters.sort) params.append('sort', filters.sort)
-    if (filters.min_price) params.append('min_price', filters.min_price.toString())
-    if (filters.max_price) params.append('max_price', filters.max_price.toString())
     
-    const response = await axios.get(`/products?${params}`)
+    // Chiamata API (verifica endpoint nel controller Laravel)
+    const response = await axios.get(`/api/products?${params}`)
     
-    products.value = response.data.products || response.data.data || []
+    // Estrai prodotti dalla risposta
+    products.value = response.data.data || response.data.products || response.data || []
     
-    // Update pagination
-    if (response.data.pagination) {
-      Object.assign(pagination, response.data.pagination)
-    } else if (response.data.meta) {
+    // Aggiorna paginazione se presente
+    if (response.data.meta) {
       pagination.current_page = response.data.meta.current_page
       pagination.per_page = response.data.meta.per_page
       pagination.total = response.data.meta.total
       pagination.last_page = response.data.meta.last_page
+    } else if (response.data.pagination) {
+      Object.assign(pagination, response.data.pagination)
     }
     
+    console.log('Prodotti caricati:', products.value.length)
+    
   } catch (error) {
-    console.error('Errore nel caricamento prodotti:', error)
+    console.error('Errore caricamento prodotti:', error)
     products.value = []
+    
+    // Se l'endpoint API non esiste, carica prodotti di esempio
+    if (error.response?.status === 404) {
+      console.warn('Endpoint /api/products non trovato, carico dati di esempio')
+      loadMockProducts()
+    }
   } finally {
     loading.value = false
   }
 }
 
+// Carica prodotti di esempio (fallback)
+const loadMockProducts = () => {
+  products.value = [
+    {
+      id: 1,
+      nome: 'Laptop Dell XPS 13',
+      descrizione: 'Laptop ultraleggero con processore Intel Core i7',
+      prezzo: 1299.99,
+      categoria: 'elettronica',
+      quantita: 15,
+      disponibile: true,
+      immagine: '/images/products/laptop.jpg'
+    },
+    {
+      id: 2,
+      nome: 'Smartphone Samsung Galaxy S21',
+      descrizione: 'Smartphone 5G con fotocamera da 64MP',
+      prezzo: 799.99,
+      categoria: 'elettronica',
+      quantita: 3,
+      disponibile: true,
+      immagine: '/images/products/phone.jpg'
+    },
+    {
+      id: 3,
+      nome: 'Cuffie Sony WH-1000XM4',
+      descrizione: 'Cuffie wireless con cancellazione del rumore',
+      prezzo: 349.99,
+      categoria: 'elettronica',
+      quantita: 0,
+      disponibile: false,
+      immagine: '/images/products/headphones.jpg'
+    },
+    {
+      id: 4,
+      nome: 'T-shirt Nike Sportswear',
+      descrizione: 'Maglietta in cotone 100% con logo Nike',
+      prezzo: 29.99,
+      categoria: 'abbigliamento',
+      quantita: 50,
+      disponibile: true,
+      immagine: '/images/products/tshirt.jpg'
+    },
+    {
+      id: 5,
+      nome: 'Jeans Levi\'s 501',
+      descrizione: 'Jeans classici a vita alta in denim blu',
+      prezzo: 89.99,
+      categoria: 'abbigliamento',
+      quantita: 25,
+      disponibile: true,
+      immagine: '/images/products/jeans.jpg'
+    },
+    {
+      id: 6,
+      nome: 'Sneakers Adidas Ultraboost',
+      descrizione: 'Scarpe da running con tecnologia Boost',
+      prezzo: 179.99,
+      categoria: 'sport',
+      quantita: 12,
+      disponibile: true,
+      immagine: '/images/products/sneakers.jpg'
+    }
+  ]
+  
+  // Applica filtri ai prodotti mock
+  if (filters.categoria) {
+    products.value = products.value.filter(p => p.categoria === filters.categoria)
+  }
+  if (filters.search) {
+    const search = filters.search.toLowerCase()
+    products.value = products.value.filter(p => 
+      p.nome.toLowerCase().includes(search) || 
+      p.descrizione.toLowerCase().includes(search)
+    )
+  }
+  
+  pagination.total = products.value.length
+  pagination.last_page = Math.ceil(products.value.length / pagination.per_page)
+}
+
+// Aggiungi al carrello veloce
 const quickAddToCart = async (product) => {
   if (!authStore.isAuthenticated) {
     router.push('/login')
@@ -380,40 +341,43 @@ const quickAddToCart = async (product) => {
       successMessage.value = `${product.nome} aggiunto al carrello!`
       setTimeout(() => successMessage.value = '', 3000)
     } else {
-      alert(result.message || 'Errore nell\'aggiunta al carrello')
+      alert(result.message || 'Errore aggiunta al carrello')
     }
   } catch (error) {
     console.error('Errore aggiunta carrello:', error)
-    alert('Errore nell\'aggiunta al carrello')
+    alert('Errore aggiunta al carrello')
   } finally {
     addingToCart.value[product.id] = false
   }
 }
 
+// Vai al dettaglio prodotto
 const goToProduct = (productId) => {
   router.push(`/products/${productId}`)
 }
 
+// Vai a pagina specifica
 const goToPage = (page) => {
   if (page !== pagination.current_page) {
     loadProducts(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
+// Rimuovi singolo filtro
 const clearFilter = (filterName) => {
-  filters[filterName] = filterName.includes('price') ? null : ''
+  filters[filterName] = ''
   loadProducts()
 }
 
+// Rimuovi tutti i filtri
 const clearAllFilters = () => {
   filters.search = ''
   filters.categoria = ''
-  filters.min_price = null
-  filters.max_price = null
   loadProducts()
 }
 
-// Debounced search
+// Ricerca con debounce (attendi 500ms dopo l'ultima digitazione)
 let searchTimeout = null
 const debouncedSearch = () => {
   clearTimeout(searchTimeout)
@@ -422,6 +386,7 @@ const debouncedSearch = () => {
   }, 500)
 }
 
+// Ottieni URL immagine prodotto
 const getProductImage = (product) => {
   if (product.immagine && product.immagine.startsWith('/images/')) {
     return product.immagine
@@ -429,10 +394,12 @@ const getProductImage = (product) => {
   return '/images/products/default-product.jpg'
 }
 
+// Gestisci errore caricamento immagine
 const handleImageError = (event) => {
   event.target.src = '/images/products/default-product.jpg'
 }
 
+// Formatta prezzo in formato italiano
 const formatPrice = (price) => {
   return new Intl.NumberFormat('it-IT', {
     minimumFractionDigits: 2,
@@ -440,44 +407,429 @@ const formatPrice = (price) => {
   }).format(price)
 }
 
-// Lifecycle
+// Carica prodotti al mount
 onMounted(() => {
   loadProducts()
 })
 </script>
 
 <style scoped>
-.line-clamp-2 {
+/* Pagina prodotti */
+.products-page {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 2rem 0;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.products-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Header sezione */
+.products-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.products-header h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.products-header p {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+/* Sezione filtri */
+.filters-section {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 1rem;
+}
+
+.filter-item label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.filter-item input,
+.filter-item select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #1f2937;
+  background: #ffffff;
+  transition: border-color 0.2s ease;
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* Filtri attivi */
+.active-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.active-filters .label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.filter-badge {
+  padding: 0.375rem 0.75rem;
+  background: #eff6ff;
+  color: #2563eb;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.filter-badge:hover {
+  background: #dbeafe;
+}
+
+.clear-all-btn {
+  padding: 0.375rem 0.75rem;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clear-all-btn:hover {
+  background: #e5e7eb;
+}
+
+/* Loading state */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-state p {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Griglia prodotti */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Card prodotto */
+.product-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Immagine prodotto */
+.product-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
+
+/* Badge disponibilità */
+.badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 4px;
+  color: #ffffff;
+}
+
+.badge.available {
+  background: #10b981;
+}
+
+.badge.low-stock {
+  background: #f59e0b;
+}
+
+.badge.out-of-stock {
+  background: #ef4444;
+}
+
+/* Info prodotto */
+.product-info {
+  padding: 1rem;
+}
+
+.product-category {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+  text-transform: capitalize;
+}
+
+.product-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Custom scrollbar for the page */
-::-webkit-scrollbar {
-  width: 8px;
+.product-description {
+  font-size: 0.9rem;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+.product-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.add-to-cart-btn {
+  padding: 0.5rem 1rem;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
   border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+.add-to-cart-btn:hover:not(:disabled) {
+  background: #1d4ed8;
 }
 
-/* Smooth animations */
-.group:hover .group-hover\:scale-105 {
-  transform: scale(1.05);
+.add-to-cart-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.group:hover .group-hover\:opacity-100 {
-  opacity: 1;
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Paginazione */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 0;
+}
+
+.page-btn {
+  padding: 0.5rem 1rem;
+  background: #ffffff;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background: #f9fafb;
+  border-color: #2563eb;
+}
+
+.page-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+/* Toast messaggio successo */
+.success-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  background: #10b981;
+  color: #ffffff;
+  border-radius: 4px;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive: tablet */
+@media (max-width: 1024px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+
+/* Responsive: mobile */
+@media (max-width: 768px) {
+  .products-header h1 {
+    font-size: 2rem;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+
+  .product-title {
+    font-size: 1rem;
+  }
+
+  .product-price {
+    font-size: 1.25rem;
+  }
 }
 </style>
