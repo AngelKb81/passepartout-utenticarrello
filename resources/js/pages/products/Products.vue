@@ -86,11 +86,11 @@
             />
             
             <!-- Badge disponibilità -->
-            <span v-if="product.disponibile && product.quantita > 0" class="badge available">
+            <span v-if="product.attivo && product.scorte > 0" class="badge available">
               Disponibile
             </span>
-            <span v-else-if="product.quantita <= 5 && product.quantita > 0" class="badge low-stock">
-              Ultimi {{ product.quantita }}
+            <span v-else-if="product.scorte <= 5 && product.scorte > 0" class="badge low-stock">
+              Ultimi {{ product.scorte }}
             </span>
             <span v-else class="badge out-of-stock">
               Esaurito
@@ -106,7 +106,7 @@
             <div class="product-footer">
               <span class="product-price">€{{ formatPrice(product.prezzo) }}</span>
               <button
-                v-if="authStore.isAuthenticated && product.disponibile && product.quantita > 0"
+                v-if="authStore.isAuthenticated && product.attivo && product.scorte > 0"
                 @click.stop="quickAddToCart(product)"
                 class="add-to-cart-btn"
                 :disabled="addingToCart[product.id]"
@@ -265,119 +265,99 @@ const loadMockProducts = () => {
       descrizione: 'Laptop ultraleggero con processore Intel Core i7, 16GB RAM, SSD 512GB',
       prezzo: 1299.99,
       categoria: 'elettronica',
-      quantita: 15,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/2563eb/ffffff?text=Laptop'
+      scorte: 15,
+      attivo: true,
+      immagine: '/images/products/laptop-dell-xps13.jpg'
     },
     {
       id: 2,
-      nome: 'Smartphone Samsung Galaxy S21',
-      descrizione: 'Smartphone 5G con fotocamera da 64MP e display AMOLED 6.2"',
-      prezzo: 799.99,
+      nome: 'Smartphone Samsung Galaxy S24',
+      descrizione: 'Smartphone 5G con fotocamera da 200MP e display AMOLED 6.8"',
+      prezzo: 999.99,
       categoria: 'elettronica',
-      quantita: 8,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/10b981/ffffff?text=Phone'
+      scorte: 25,
+      attivo: true,
+      immagine: '/images/products/smartphone-samsung-s24.jpg'
     },
     {
       id: 3,
-      nome: 'Cuffie Sony WH-1000XM4',
+      nome: 'Cuffie Sony WH-1000XM5',
       descrizione: 'Cuffie wireless con cancellazione attiva del rumore e autonomia 30h',
       prezzo: 349.99,
       categoria: 'elettronica',
-      quantita: 4,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/8b5cf6/ffffff?text=Cuffie'
+      scorte: 40,
+      attivo: true,
+      immagine: '/images/products/cuffie-sony-wh1000xm5.jpg'
     },
     {
       id: 4,
-      nome: 'T-shirt Nike Sportswear',
-      descrizione: 'Maglietta in cotone 100% con logo Nike, disponibile in vari colori',
-      prezzo: 29.99,
-      categoria: 'abbigliamento',
-      quantita: 50,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/ef4444/ffffff?text=T-Shirt'
+      nome: 'Tablet Apple iPad Pro 12.9"',
+      descrizione: 'Tablet professionale con chip M2 e display Liquid Retina XDR',
+      prezzo: 1199.99,
+      categoria: 'elettronica',
+      scorte: 12,
+      attivo: true,
+      immagine: '/images/products/tablet-ipad-pro.jpg'
     },
     {
       id: 5,
-      nome: 'Jeans Levi\'s 501',
-      descrizione: 'Jeans classici a vita alta in denim blu 100% cotone',
-      prezzo: 89.99,
-      categoria: 'abbigliamento',
-      quantita: 25,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/6366f1/ffffff?text=Jeans'
+      nome: 'Smartwatch Garmin Fenix 7',
+      descrizione: 'Orologio GPS multisport con autonomia fino a 18 giorni',
+      prezzo: 599.99,
+      categoria: 'elettronica',
+      scorte: 18,
+      attivo: true,
+      immagine: '/images/products/smartwatch-garmin-fenix7.jpg'
     },
     {
       id: 6,
-      nome: 'Sneakers Adidas Ultraboost',
-      descrizione: 'Scarpe da running con tecnologia Boost per massimo comfort',
-      prezzo: 179.99,
-      categoria: 'sport',
-      quantita: 12,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/f59e0b/ffffff?text=Sneakers'
+      nome: 'Console PlayStation 5',
+      descrizione: 'Console di gioco di nuova generazione con SSD ultra-veloce',
+      prezzo: 549.99,
+      categoria: 'elettronica',
+      scorte: 6,
+      attivo: true,
+      immagine: '/images/products/console-ps5.jpg'
     },
     {
       id: 7,
-      nome: 'Tablet Apple iPad Air',
-      descrizione: 'Tablet con chip M1, display Liquid Retina 10.9" e supporto Apple Pencil',
-      prezzo: 649.99,
+      nome: 'Fotocamera Canon EOS R6',
+      descrizione: 'Fotocamera mirrorless da 20.1MP con video 4K 60fps',
+      prezzo: 2199.99,
       categoria: 'elettronica',
-      quantita: 3,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/3b82f6/ffffff?text=Tablet'
+      scorte: 8,
+      attivo: true,
+      immagine: '/images/products/fotocamera-canon-eosr6.jpg'
     },
     {
       id: 8,
-      nome: 'Zaino The North Face',
-      descrizione: 'Zaino tecnico impermeabile 30L ideale per trekking e viaggi',
-      prezzo: 119.99,
-      categoria: 'sport',
-      quantita: 18,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/14b8a6/ffffff?text=Zaino'
+      nome: 'Router WiFi 6 ASUS AX6000',
+      descrizione: 'Router WiFi 6 dual-band ad alte prestazioni, velocità fino a 6000 Mbps',
+      prezzo: 299.99,
+      categoria: 'elettronica',
+      scorte: 22,
+      attivo: true,
+      immagine: '/images/products/router-asus-ax6000.jpg'
     },
     {
       id: 9,
-      nome: 'Libro "Clean Code"',
-      descrizione: 'Manuale di sviluppo software agile di Robert C. Martin',
-      prezzo: 39.99,
-      categoria: 'libri',
-      quantita: 30,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/84cc16/ffffff?text=Libro'
+      nome: 'Monitor Gaming LG UltraGear 27"',
+      descrizione: 'Monitor gaming QHD da 27" con refresh rate 165Hz',
+      prezzo: 399.99,
+      categoria: 'elettronica',
+      scorte: 14,
+      attivo: true,
+      immagine: '/images/products/monitor-lg-ultragear.jpg'
     },
     {
       id: 10,
-      nome: 'Lampada LED Smart',
-      descrizione: 'Lampada da tavolo intelligente con controllo da app e 16 milioni di colori',
-      prezzo: 59.99,
-      categoria: 'casa',
-      quantita: 20,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/eab308/ffffff?text=Lampada'
-    },
-    {
-      id: 11,
-      nome: 'Mouse Logitech MX Master 3',
-      descrizione: 'Mouse wireless ergonomico con sensore 4000 DPI',
-      prezzo: 99.99,
+      nome: 'Altoparlante Smart Amazon Echo Studio',
+      descrizione: 'Smart speaker premium con audio spaziale Dolby Atmos',
+      prezzo: 199.99,
       categoria: 'elettronica',
-      quantita: 2,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/06b6d4/ffffff?text=Mouse'
-    },
-    {
-      id: 12,
-      nome: 'Bottiglia Termica',
-      descrizione: 'Bottiglia in acciaio inox che mantiene il caldo/freddo per 24h',
-      prezzo: 24.99,
-      categoria: 'sport',
-      quantita: 45,
-      disponibile: true,
-      immagine: 'https://via.placeholder.com/300x300/a855f7/ffffff?text=Bottiglia'
+      scorte: 30,
+      attivo: true,
+      immagine: '/images/products/speaker-echo-studio.jpg'
     }
   ]
   
@@ -486,19 +466,22 @@ const debouncedSearch = () => {
 
 // Ottieni URL immagine prodotto
 const getProductImage = (product) => {
-  // Se ha già un URL completo (http/https) o placeholder, usalo direttamente
+  // Se ha già un URL completo (http/https), usalo direttamente
   if (product.immagine) {
     if (product.immagine.startsWith('http://') || product.immagine.startsWith('https://')) {
       return product.immagine
     }
+    // Se inizia con 'products/', aggiungi il prefisso /images/
+    if (product.immagine.startsWith('products/')) {
+      return `/images/${product.immagine}`
+    }
+    // Se inizia con /images/, usalo così
     if (product.immagine.startsWith('/images/')) {
       return product.immagine
     }
   }
-  // Fallback con placeholder unico per ID prodotto
-  const colors = ['2563eb', '10b981', '8b5cf6', 'ef4444', 'f59e0b', '06b6d4']
-  const color = colors[product.id % colors.length]
-  return `https://via.placeholder.com/300x300/${color}/ffffff?text=Prodotto+${product.id}`
+  // Fallback con placeholder
+  return '/images/products/placeholder.svg'
 }
 
 // Gestisci errore caricamento immagine (evita loop infinito)
@@ -507,10 +490,7 @@ const handleImageError = (event) => {
   // Controlla se abbiamo già provato il fallback per evitare loop
   if (!img.dataset.fallbackAttempted) {
     img.dataset.fallbackAttempted = 'true'
-    const productId = img.alt.match(/\d+/) ? img.alt.match(/\d+/)[0] : '0'
-    const colors = ['2563eb', '10b981', '8b5cf6', 'ef4444', 'f59e0b', '06b6d4']
-    const color = colors[parseInt(productId) % colors.length]
-    img.src = `https://via.placeholder.com/300x300/${color}/ffffff?text=Prodotto`
+    img.src = '/images/products/placeholder.svg'
   }
 }
 

@@ -26,15 +26,15 @@
           <p class="product-description">{{ product.descrizione }}</p>
           <div class="product-meta">
             <span class="product-price">€{{ formatPrice(product.prezzo) }}</span>
-            <span v-if="product.disponibile && product.quantita > 0" class="badge available">Disponibile</span>
-            <span v-else-if="product.quantita <= 5 && product.quantita > 0" class="badge low-stock">Ultimi {{ product.quantita }}</span>
+            <span v-if="product.attivo && product.scorte > 0" class="badge available">Disponibile</span>
+            <span v-else-if="product.scorte <= 5 && product.scorte > 0" class="badge low-stock">Ultimi {{ product.scorte }}</span>
             <span v-else class="badge out-of-stock">Esaurito</span>
           </div>
           <!-- Quantità e aggiungi al carrello -->
           <div class="add-to-cart-section">
             <label for="qty">Quantità</label>
-            <input id="qty" type="number" v-model.number="quantity" min="1" :max="product.quantita" :disabled="!product.disponibile || product.quantita === 0" />
-            <button @click="addToCart" :disabled="!product.disponibile || product.quantita === 0 || adding" class="btn-primary">
+            <input id="qty" type="number" v-model.number="quantity" min="1" :max="product.scorte" :disabled="!product.attivo || product.scorte === 0" />
+            <button @click="addToCart" :disabled="!product.attivo || product.scorte === 0 || adding" class="btn-primary">
               <span v-if="adding">Aggiunta...</span>
               <span v-else>Aggiungi al carrello</span>
             </button>
@@ -80,7 +80,7 @@ const getProduct = async () => {
 }
 
 const addToCart = async () => {
-  if (!product.value || !product.value.disponibile || product.value.quantita === 0) return
+  if (!product.value || !product.value.attivo || product.value.scorte === 0) return
   try {
     adding.value = true
     const result = await cartStore.addToCart(product.value.id, quantity.value)
@@ -103,14 +103,30 @@ const showMessage = (text, type = 'success') => {
 }
 
 const getProductImage = (product) => {
-  if (product.immagine && product.immagine.startsWith('/images/')) {
-    return product.immagine
+  // Se ha già un URL completo (http/https), usalo direttamente
+  if (product.immagine) {
+    if (product.immagine.startsWith('http://') || product.immagine.startsWith('https://')) {
+      return product.immagine
+    }
+    // Se inizia con 'products/', aggiungi il prefisso /images/
+    if (product.immagine.startsWith('products/')) {
+      return `/images/${product.immagine}`
+    }
+    // Se inizia con /images/, usalo così
+    if (product.immagine.startsWith('/images/')) {
+      return product.immagine
+    }
   }
-  return '/images/products/default-product.jpg'
+  // Fallback
+  return '/images/products/placeholder.svg'
 }
 
 const handleImageError = (event) => {
-  event.target.src = '/images/products/default-product.jpg'
+  const img = event.target
+  if (!img.dataset.fallbackAttempted) {
+    img.dataset.fallbackAttempted = 'true'
+    img.src = '/images/products/placeholder.svg'
+  }
 }
 
 const formatPrice = (price) => {
