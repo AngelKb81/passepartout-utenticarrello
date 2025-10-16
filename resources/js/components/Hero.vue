@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/authStore'
+import { useAuthStore } from '../stores/auth'
 
 // Store autenticazione per controllo stato utente
 const authStore = useAuthStore()

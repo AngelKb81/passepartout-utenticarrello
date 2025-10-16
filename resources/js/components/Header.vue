@@ -34,8 +34,8 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/authStore'
-import { useCartStore } from '../stores/cartStore'
+import { useAuthStore } from '../stores/auth'
+import { useCartStore } from '../stores/cart'
 import { useRouter } from 'vue-router'
 
 // Store e router
