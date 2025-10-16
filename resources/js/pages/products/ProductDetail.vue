@@ -103,6 +103,10 @@ const showMessage = (text, type = 'success') => {
 }
 
 const getProductImage = (product) => {
+  // Se c'è immagine_url dall'API, usalo (già formattato dal backend)
+  if (product.immagine_url) {
+    return product.immagine_url
+  }
   // Se ha già un URL completo (http/https), usalo direttamente
   if (product.immagine) {
     if (product.immagine.startsWith('http://') || product.immagine.startsWith('https://')) {
