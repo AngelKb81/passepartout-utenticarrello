@@ -14,12 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
         App\Providers\AuthServiceProvider::class,
     ])
-    ->withMiddleware(function (Middleware $middleware): void {
-        // Registra middleware personalizzati
+    ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

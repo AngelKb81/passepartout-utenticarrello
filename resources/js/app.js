@@ -16,7 +16,6 @@ import Products from './pages/products/Products.vue'
 import ProductDetail from './pages/products/ProductDetail.vue'
 import Cart from './pages/cart/Cart.vue'
 import Dashboard from './pages/admin/Dashboard.vue'
-import AdminProducts from './pages/admin/AdminProducts.vue'
 
 // Import dei composables/stores
 import { useAuthStore } from './stores/auth'
@@ -97,12 +96,6 @@ const routes = [
         path: '/admin/dashboard',
         name: 'admin-dashboard',
         component: Dashboard,
-        meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-        path: '/admin/products',
-        name: 'admin-products',
-        component: AdminProducts,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

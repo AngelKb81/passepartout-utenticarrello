@@ -145,7 +145,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { Chart, registerables } from 'chart.js'
-import { useAuthStore } from '../stores/auth'
+import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
 
 Chart.register(...registerables)

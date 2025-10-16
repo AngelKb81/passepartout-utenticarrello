@@ -57,7 +57,6 @@ class AdminController extends Controller
                     'top_products' => $topProducts
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Errore nel recupero delle statistiche',
@@ -95,11 +94,11 @@ class AdminController extends Controller
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('count(*) as count')
             )
-            ->where('created_at', '>=', Carbon::now()->subMonths(12))
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
+                ->where('created_at', '>=', Carbon::now()->subMonths(12))
+                ->groupBy('year', 'month')
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
 
             return response()->json([
                 'message' => 'Statistiche utenti recuperate con successo',
@@ -110,7 +109,6 @@ class AdminController extends Controller
                     'monthly_registrations' => $monthlyRegistrations
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Errore nel recupero delle statistiche utenti',
@@ -132,13 +130,13 @@ class AdminController extends Controller
                 DB::raw('SUM(cart_items.quantita * cart_items.prezzo_unitario) as revenue'),
                 DB::raw('COUNT(DISTINCT carts.id) as orders_count')
             )
-            ->join('carts', 'cart_items.cart_id', '=', 'carts.id')
-            ->where('carts.stato', 'completato')
-            ->where('carts.created_at', '>=', Carbon::now()->subMonths(12))
-            ->groupBy('year', 'month')
-            ->orderBy('year')
-            ->orderBy('month')
-            ->get();
+                ->join('carts', 'cart_items.cart_id', '=', 'carts.id')
+                ->where('carts.stato', 'completato')
+                ->where('carts.created_at', '>=', Carbon::now()->subMonths(12))
+                ->groupBy('year', 'month')
+                ->orderBy('year')
+                ->orderBy('month')
+                ->get();
 
             // Top prodotti per categoria
             $categoryStats = Product::select('categoria', DB::raw('count(*) as count'))
@@ -153,7 +151,6 @@ class AdminController extends Controller
                     'categories' => $categoryStats
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Errore nel recupero delle statistiche vendite',
@@ -176,7 +173,6 @@ class AdminController extends Controller
                 'message' => 'Lista utenti recuperata con successo',
                 'users' => $users
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Errore nel recupero degli utenti',

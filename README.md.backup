@@ -229,99 +229,10 @@ Open source - MIT License
 **Sviluppato con ❤️ da Angelo Corbelli**  
 *Full-Stack Developer | Laravel & Vue.js Specialist*
 
-## 🌐 Come Usare l'Applicazione
-
-### Per Utenti
-
-1. **Accedi** all'applicazione: `http://127.0.0.1:8000`
-2. **Registrati** creando un nuovo account
-3. **Esplora** il catalogo prodotti
-4. **Aggiungi** prodotti al carrello
-5. **Procedi** al checkout
-6. **Visualizza** il tuo profilo e ordini
-
-### Per Amministratori
-
-1. **Login** con credenziali admin
-2. Accedi alla **Dashboard** dal menu
-3. **Visualizza** statistiche e grafici in tempo reale
-4. **Gestisci** prodotti (aggiungi/modifica/elimina)
-5. **Monitora** utenti e ordini
-
-## 🎨 Screenshot
-
-### Homepage
-- Catalogo prodotti responsive
-- Ricerca e filtri avanzati
-- Navigazione intuitiva
-
-### Dashboard Admin
-- Grafici interattivi con Chart.js
-- Statistiche utenti per ruolo
-- Analisi geografica e demografica
-- Fatturato mensile
-
-### Carrello
-- Gestione quantità in tempo reale
-- Calcolo totali automatico
-- Checkout semplificato
-
-## 📊 Dati di Test
-
-Il seeder popola il database con:
-- **3 ruoli**: Admin, User, Business
-- **1 admin**: admin@passepartout-utenticarrello.test
-- **10+ utenti** di test con dati realistici
-- **50+ prodotti** in varie categorie
-- **Carrelli** precompilati per testing
-
-## 🔍 Troubleshooting
-
-### Errori Comuni
-
-**Vite non parte:**
-```bash
-npm install
-npm run dev
-```
-
-**Errori database:**
-```bash
-php artisan migrate:fresh --seed
-```
-
-**Errori permessi storage:**
-```bash
-chmod -R 775 storage bootstrap/cache
-php artisan storage:link
-```
-
-**Cache problematiche:**
-```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-```
-
-## 📞 Supporto
-
-Per problemi o domande:
-- **GitHub Issues**: [Apri una issue](https://github.com/AngelKb81/passepartout-utenticarrello/issues)
-- **Email**: angelo@example.com
-
-## 🙏 Ringraziamenti
-
-- Laravel Team per il framework eccezionale
-- Vue.js Core Team per Vue 3
-- Tailwind Labs per Tailwind CSS
-- Chart.js Team per le visualizzazioni
-- Community open source
-
 ## Security Vulnerabilities
 
-If you discover a security vulnerability, please send an e-mail to angelo@example.com. All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
 ## License
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
