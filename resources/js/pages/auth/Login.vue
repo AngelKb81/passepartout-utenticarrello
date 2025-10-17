@@ -50,12 +50,15 @@
           <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
         </div>
 
-        <!-- Ricordami -->
+        <!-- Ricordami e Password Dimenticata -->
         <div class="form-extras">
           <label class="checkbox-label">
             <input v-model="form.remember" type="checkbox" />
             <span>Ricordami</span>
           </label>
+          <router-link to="/forgot-password" class="forgot-password-link">
+            Password dimenticata?
+          </router-link>
         </div>
 
         <!-- Messaggio di errore globale -->
@@ -295,8 +298,11 @@ const handleLogin = async () => {
   color: #ef4444;
 }
 
-/* Extras (checkbox) */
+/* Extras (checkbox e forgot password) */
 .form-extras {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
 }
 
@@ -314,6 +320,18 @@ const handleLogin = async () => {
 .checkbox-label span {
   font-size: 0.95rem;
   color: #4b5563;
+}
+
+.forgot-password-link {
+  font-size: 0.9rem;
+  color: #2563eb;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 /* Alert */

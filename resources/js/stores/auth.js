@@ -12,10 +12,14 @@ export const useAuthStore = defineStore('auth', {
   getters: {
     isAuthenticated: (state) => !!state.token && !!state.user,
     isAdmin: (state) => {
-      return state.user?.roles?.some(role => role.nome === 'admin') || false
+      // Usa is_admin dall'API o fallback su roles array
+      if (state.user?.is_admin !== undefined) {
+        return state.user.is_admin
+      }
+      return state.user?.roles?.includes('admin') || false
     },
     isBusiness: (state) => {
-      return state.user?.roles?.some(role => role.nome === 'business') || false
+      return state.user?.roles?.includes('business') || false
     },
     userFullName: (state) => {
       return state.user ? `${state.user.nome} ${state.user.cognome}` : ''
@@ -46,10 +50,14 @@ export const useAuthStore = defineStore('auth', {
       this.loading = false
     },
 
-    async login(credentials) {
+    async login(email, password, remember = false) {
       try {
         this.loading = true
-        const response = await axios.post('/auth/login', credentials)
+        const response = await axios.post('/auth/login', {
+          email,
+          password,
+          remember
+        })
         
         const { token, user } = response.data
         
@@ -73,13 +81,18 @@ export const useAuthStore = defineStore('auth', {
         this.loading = true
         const response = await axios.post('/auth/register', userData)
         
+        // Dopo la registrazione, prova a fare login automaticamente
+        if (response.data && userData.email && userData.password) {
+          await this.login(userData.email, userData.password)
+        }
+        
         return { success: true, data: response.data }
       } catch (error) {
         let message = 'Errore durante la registrazione'
         
         if (error.response?.data?.errors) {
-          const errors = Object.values(error.response.data.errors).flat()
-          message = errors.join(', ')
+          const errors = error.response?.data?.errors
+          return { success: false, message, errors }
         } else if (error.response?.data?.message) {
           message = error.response.data.message
         }
@@ -104,7 +117,7 @@ export const useAuthStore = defineStore('auth', {
 
     async fetchProfile() {
       try {
-        const response = await axios.get('/auth/profile')
+        const response = await axios.get('/auth/user')
         this.user = response.data.user
         localStorage.setItem('user', JSON.stringify(this.user))
         return { success: true, data: response.data }

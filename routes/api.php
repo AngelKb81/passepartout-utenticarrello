@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\EmailLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,16 +18,31 @@ use App\Http\Controllers\Api\AdminController;
 |
 */
 
+// Test route (da rimuovere in produzione)
+Route::get('/test-admin', function () {
+    $users = \App\Models\User::with('roles')->get();
+    $roles = \App\Models\Role::all();
+    return response()->json([
+        'users' => $users,
+        'roles' => $roles,
+        'admin_user' => \App\Models\User::where('email', 'admin@passepartout-utenticarrello.test')->with('roles')->first()
+    ]);
+});
+
 // Routes di autenticazione pubbliche
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
     // Routes protette da autenticazione
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);
+        Route::post('/change-password', [AuthController::class, 'changePassword']);
+        Route::post('/change-email', [AuthController::class, 'changeEmail']);
     });
 });
 
@@ -65,6 +81,13 @@ Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function ()
     Route::get('/users/stats', [AdminController::class, 'getUserStats']);
     Route::get('/sales/stats', [AdminController::class, 'getSalesStats']);
     Route::get('/users', [AdminController::class, 'getUsers']);
+});
+
+// Routes email logs (protette da autenticazione)
+Route::middleware(['auth:sanctum'])->prefix('emails')->group(function () {
+    Route::get('/', [EmailLogController::class, 'index']);
+    Route::get('/stats', [EmailLogController::class, 'stats']);
+    Route::get('/{id}', [EmailLogController::class, 'show']);
 });
 
 // Route per test API

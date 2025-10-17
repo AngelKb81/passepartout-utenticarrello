@@ -215,8 +215,8 @@ const loadProducts = async (page = 1) => {
     if (filters.categoria) params.append('categoria', filters.categoria)
     if (filters.sort) params.append('sort', filters.sort)
     
-    // Chiamata API (verifica endpoint nel controller Laravel)
-    const response = await axios.get(`/api/products?${params}`)
+    // Chiamata API (axios ha già baseURL='/api')
+    const response = await axios.get(`/products?${params}`)
     
     // Estrai prodotti dalla risposta
     const productsData = response.data.data || response.data.products || []

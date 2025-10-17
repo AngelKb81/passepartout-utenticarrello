@@ -9,16 +9,22 @@ use Illuminate\Notifications\Notification;
 use App\Models\UserEmail;
 use Illuminate\Support\Facades\Log;
 
-class WelcomeNotification extends Notification
+class PasswordResetNotification extends Notification
 {
     use Queueable;
+
+    public $resetUrl;
+    public $nome;
+    public $userId;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($resetUrl, $nome = 'Utente', $userId = null)
     {
-        //
+        $this->resetUrl = $resetUrl;
+        $this->nome = $nome;
+        $this->userId = $userId;
     }
 
     /**
@@ -36,33 +42,31 @@ class WelcomeNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $subject = 'Benvenuto in Passepartout!';
+        $subject = 'Reset Password - Passepartout';
 
         $message = (new MailMessage)
             ->subject($subject)
-            ->greeting('Ciao ' . $notifiable->nome . '!')
-            ->line('Benvenuto nel nostro sistema di gestione utenti e carrello.')
-            ->line('La tua registrazione è stata completata con successo.')
-            ->line('Ora puoi accedere a tutte le funzionalità del portale:')
-            ->line('• Gestione profilo personale')
-            ->line('• Catalogo prodotti completo')
-            ->line('• Carrello e checkout personalizzato')
-            ->action('Accedi al portale', url('/login'))
-            ->line('Grazie per esserti registrato con noi!');
+            ->greeting('Ciao ' . $this->nome . '!')
+            ->line('Hai richiesto il reset della tua password.')
+            ->line('Clicca sul pulsante qui sotto per procedere:')
+            ->action('Reset Password', $this->resetUrl)
+            ->line('Questo link è valido per 60 minuti.')
+            ->line('Se non hai richiesto il reset della password, ignora questa email.')
+            ->salutation('Grazie, Il team di Passepartout');
 
         // Log email nel database
         try {
             UserEmail::logEmail(
-                $notifiable->id ?? null,
-                $notifiable->email,
-                $notifiable->nome ?? 'Utente',
-                'welcome',
+                $this->userId ?? $notifiable->id ?? null,
+                $notifiable->email ?? $notifiable->routes['mail'] ?? 'unknown',
+                $this->nome,
+                'reset_password',
                 $subject,
-                'Email di benvenuto inviata al nuovo utente',
+                'Email di reset password con link: ' . $this->resetUrl,
                 'sent'
             );
         } catch (\Exception $e) {
-            Log::error('Errore log email benvenuto:', ['error' => $e->getMessage()]);
+            Log::error('Errore log email reset password:', ['error' => $e->getMessage()]);
         }
 
         return $message;
@@ -76,8 +80,7 @@ class WelcomeNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'user_id' => $notifiable->id,
-            'message' => 'Nuovo utente registrato: ' . $notifiable->nome . ' ' . $notifiable->cognome,
+            //
         ];
     }
 }

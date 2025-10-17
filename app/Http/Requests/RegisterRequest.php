@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Log;
 
 class RegisterRequest extends FormRequest
 {
@@ -20,8 +21,11 @@ class RegisterRequest extends FormRequest
      */
     public function rules(): array
     {
+        // DEBUG: Log dei dati ricevuti
+        Log::info('Dati registrazione ricevuti:', $this->all());
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            'nome' => ['required', 'string', 'max:255'],
             'cognome' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -37,7 +41,7 @@ class RegisterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Il nome è obbligatorio.',
+            'nome.required' => 'Il nome è obbligatorio.',
             'cognome.required' => 'Il cognome è obbligatorio.',
             'email.required' => 'L\'email è obbligatoria.',
             'email.email' => 'Inserisci un indirizzo email valido.',

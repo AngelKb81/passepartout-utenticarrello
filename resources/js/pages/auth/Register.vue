@@ -13,18 +13,33 @@
       <!-- Form registrazione -->
       <form @submit.prevent="handleRegister" class="auth-form">
         
-        <!-- Nome -->
-        <div class="form-group">
-          <label for="name">Nome completo</label>
-          <input
-            v-model="form.name"
-            id="name"
-            type="text"
-            placeholder="Mario Rossi"
-            required
-            autocomplete="name"
-          />
-          <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
+        <!-- Nome e Cognome -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nome">Nome</label>
+            <input
+              v-model="form.nome"
+              id="nome"
+              type="text"
+              placeholder="Mario"
+              required
+              autocomplete="given-name"
+            />
+            <span v-if="errors.nome" class="error-message">{{ errors.nome }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="cognome">Cognome</label>
+            <input
+              v-model="form.cognome"
+              id="cognome"
+              type="text"
+              placeholder="Rossi"
+              required
+              autocomplete="family-name"
+            />
+            <span v-if="errors.cognome" class="error-message">{{ errors.cognome }}</span>
+          </div>
         </div>
 
         <!-- Email -->
@@ -34,11 +49,48 @@
             v-model="form.email"
             id="email"
             type="email"
-            placeholder="tuaemail@esempio.it"
+            placeholder="tua@email.com"
             required
             autocomplete="email"
           />
           <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+        </div>
+
+        <!-- Titolo di studi (opzionale) -->
+        <div class="form-group">
+          <label for="titolo_studi">Titolo di Studi <span class="optional">(opzionale)</span></label>
+          <select v-model="form.titolo_studi" id="titolo_studi">
+            <option value="">-- Seleziona --</option>
+            <option value="Licenza elementare">Licenza elementare</option>
+            <option value="Licenza media">Licenza media</option>
+            <option value="Diploma">Diploma</option>
+            <option value="Laurea triennale">Laurea triennale</option>
+            <option value="Laurea magistrale">Laurea magistrale</option>
+            <option value="Master">Master</option>
+            <option value="Dottorato">Dottorato</option>
+          </select>
+        </div>
+
+        <!-- Data di nascita (opzionale) -->
+        <div class="form-group">
+          <label for="data_nascita">Data di Nascita <span class="optional">(opzionale)</span></label>
+          <input
+            v-model="form.data_nascita"
+            id="data_nascita"
+            type="date"
+            :max="new Date().toISOString().split('T')[0]"
+          />
+        </div>
+
+        <!-- Città di nascita (opzionale) -->
+        <div class="form-group">
+          <label for="citta_nascita">Città di Nascita <span class="optional">(opzionale)</span></label>
+          <input
+            v-model="form.citta_nascita"
+            id="citta_nascita"
+            type="text"
+            placeholder="Es: Roma"
+          />
         </div>
 
         <!-- Password -->
@@ -91,7 +143,7 @@
         <div class="form-extras">
           <label class="checkbox-label">
             <input v-model="form.accept_terms" type="checkbox" required />
-            <span>Accetto i <a href="/terms" target="_blank">termini e condizioni</a></span>
+            <span>Accetto i <a href="#" @click.prevent="showTerms = true">termini e condizioni</a></span>
           </label>
         </div>
 
@@ -119,6 +171,50 @@
       </form>
 
     </div>
+
+    <!-- Modal Termini e Condizioni -->
+    <div v-if="showTerms" class="modal-overlay" @click="showTerms = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h2>Termini e Condizioni</h2>
+          <button @click="showTerms = false" class="modal-close">✕</button>
+        </div>
+        <div class="modal-body">
+          <h3>1. Accettazione dei Termini</h3>
+          <p>Utilizzando questo servizio, accetti di essere vincolato dai presenti termini e condizioni. Se non accetti questi termini, ti preghiamo di non utilizzare il servizio.</p>
+          
+          <h3>2. Descrizione del Servizio</h3>
+          <p>UtentiCarrello è una piattaforma e-commerce che consente agli utenti di acquistare prodotti online. Ci impegniamo a fornire un servizio di qualità e a proteggere i tuoi dati personali.</p>
+          
+          <h3>3. Account Utente</h3>
+          <p>Per utilizzare alcune funzionalità del servizio, potrebbe essere necessario creare un account. Sei responsabile di mantenere la confidenzialità delle tue credenziali di accesso.</p>
+          
+          <h3>4. Privacy e Protezione Dati</h3>
+          <p>Raccogliamo e utilizziamo i tuoi dati personali in conformità con la nostra Informativa sulla Privacy e il GDPR. I tuoi dati non saranno venduti a terze parti.</p>
+          
+          <h3>5. Ordini e Pagamenti</h3>
+          <p>Tutti gli ordini sono soggetti a disponibilità. I prezzi possono variare senza preavviso. I pagamenti vengono elaborati in modo sicuro.</p>
+          
+          <h3>6. Diritto di Recesso</h3>
+          <p>Hai il diritto di recedere dall'acquisto entro 14 giorni dalla ricezione dei prodotti, salvo eccezioni previste dalla legge.</p>
+          
+          <h3>7. Limitazione di Responsabilità</h3>
+          <p>Il servizio è fornito "così com'è". Non ci assumiamo responsabilità per eventuali danni derivanti dall'uso del servizio.</p>
+          
+          <h3>8. Modifiche ai Termini</h3>
+          <p>Ci riserviamo il diritto di modificare questi termini in qualsiasi momento. Le modifiche entreranno in vigore immediatamente dopo la pubblicazione.</p>
+          
+          <h3>9. Legge Applicabile</h3>
+          <p>Questi termini sono regolati dalla legge italiana. Qualsiasi controversia sarà soggetta alla giurisdizione esclusiva dei tribunali italiani.</p>
+          
+          <h3>10. Contatti</h3>
+          <p>Per domande sui termini e condizioni, contattaci all'indirizzo: info@utenticarrello.it</p>
+        </div>
+        <div class="modal-footer">
+          <button @click="showTerms = false" class="btn-primary">Ho Capito</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -135,13 +231,18 @@ const authStore = useAuthStore()
 const loading = ref(false)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
+const showTerms = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 
 // Form data
 const form = reactive({
-  name: '',
+  nome: '',
+  cognome: '',
   email: '',
+  titolo_studi: '',
+  data_nascita: '',
+  citta_nascita: '',
   password: '',
   password_confirmation: '',
   accept_terms: false
@@ -149,7 +250,8 @@ const form = reactive({
 
 // Errori validazione
 const errors = reactive({
-  name: '',
+  nome: '',
+  cognome: '',
   email: '',
   password: '',
   password_confirmation: ''
@@ -158,7 +260,8 @@ const errors = reactive({
 // Validazione client-side
 const validateForm = () => {
   // Reset errori
-  errors.name = ''
+  errors.nome = ''
+  errors.cognome = ''
   errors.email = ''
   errors.password = ''
   errors.password_confirmation = ''
@@ -166,8 +269,14 @@ const validateForm = () => {
   let isValid = true
   
   // Validazione nome
-  if (!form.name || form.name.trim().length < 3) {
-    errors.name = 'Nome troppo corto (minimo 3 caratteri)'
+  if (!form.nome || form.nome.trim().length < 2) {
+    errors.nome = 'Nome troppo corto (minimo 2 caratteri)'
+    isValid = false
+  }
+  
+  // Validazione cognome
+  if (!form.cognome || form.cognome.trim().length < 2) {
+    errors.cognome = 'Cognome troppo corto (minimo 2 caratteri)'
     isValid = false
   }
   
@@ -221,21 +330,29 @@ const handleRegister = async () => {
   try {
     loading.value = true
     
-    // Chiamata API tramite store
-    const result = await authStore.register({
-      name: form.name,
+    // DEBUG: Log dei dati inviati
+    const dataToSend = {
+      nome: form.nome,
+      cognome: form.cognome,
       email: form.email,
+      titolo_studi: form.titolo_studi || null,
+      data_nascita: form.data_nascita || null,
+      citta_nascita: form.citta_nascita || null,
       password: form.password,
       password_confirmation: form.password_confirmation
-    })
+    }
+    console.log('📤 Dati inviati al backend:', dataToSend)
+    
+    // Chiamata API tramite store
+    const result = await authStore.register(dataToSend)
     
     if (result.success) {
       successMessage.value = 'Registrazione completata! Reindirizzamento...'
       
-      // Reindirizza dopo 1 secondo
+      // Reindirizza dopo 500ms (il login è automatico nello store)
       setTimeout(() => {
         router.push('/products')
-      }, 1000)
+      }, 500)
     } else {
       errorMessage.value = result.message || 'Errore durante la registrazione'
       
@@ -319,8 +436,19 @@ const handleRegister = async () => {
   padding: 2rem;
 }
 
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 .form-group {
   margin-bottom: 1.5rem;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
 }
 
 .form-group label {
@@ -331,7 +459,14 @@ const handleRegister = async () => {
   margin-bottom: 0.5rem;
 }
 
-.form-group input {
+.form-group label .optional {
+  font-weight: 400;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #d1d5db;
@@ -339,11 +474,17 @@ const handleRegister = async () => {
   font-size: 1rem;
   color: #1f2937;
   transition: border-color 0.2s ease;
+  background-color: #fff;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: #2563eb;
+}
+
+.form-group select {
+  cursor: pointer;
 }
 
 .form-group input::placeholder {
@@ -470,6 +611,104 @@ const handleRegister = async () => {
   color: #1d4ed8;
 }
 
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 4px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.modal-close:hover {
+  background: #f3f4f6;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-body h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body h3:first-child {
+  margin-top: 0;
+}
+
+.modal-body p {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-footer .btn-primary {
+  width: auto;
+  padding: 0.625rem 1.5rem;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .auth-header h1 {
@@ -478,6 +717,10 @@ const handleRegister = async () => {
 
   .auth-form {
     padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 </style>

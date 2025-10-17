@@ -69,10 +69,11 @@ const getProduct = async () => {
   try {
     loading.value = true
     const id = route.params.id
-    const response = await axios.get(`/api/products/${id}`)
+    const response = await axios.get(`/products/${id}`)
     product.value = response.data.data || response.data.product || response.data
     quantity.value = 1
   } catch (error) {
+    console.error('Errore caricamento prodotto:', error)
     product.value = null
   } finally {
     loading.value = false

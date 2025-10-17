@@ -1,9 +1,6 @@
 <template>
-  <!-- Pagina Home: layout pulito e minimale -->
+  <!-- Pagina Home: contenuto pulito senza header/footer duplicati -->
   <div class="home-page">
-    <!-- Header con navigazione -->
-    <Header />
-
     <!-- Hero: sezione presentazione principale -->
     <Hero />
 
@@ -29,17 +26,12 @@
       </div>
     </section>
     -->
-
-    <!-- Footer -->
-    <Footer />
   </div>
 </template>
 
 <script setup>
 // Import componenti
-import Header from '../components/Header.vue'
 import Hero from '../components/Hero.vue'
-import Footer from '../components/Footer.vue'
 
 // Import store (se necessario per logica futura)
 import { useAuthStore } from '../stores/auth'

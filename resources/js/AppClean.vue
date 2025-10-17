@@ -202,7 +202,7 @@
 
         <!-- Bottom -->
         <div class="border-t border-gray-200 pt-8 mt-8 text-center">
-          <p class="text-gray-600">&copy; {{ new Date().getFullYear() }} Passepartout. Tutti i diritti riservati.</p>
+          <p class="text-gray-600">&copy; 2024 Passepartout. Tutti i diritti riservati.</p>
         </div>
       </div>
     </footer>
@@ -239,11 +239,8 @@ const logout = async () => {
   try {
     await authStore.logout()
     showUserMenu.value = false
-    showMobileMenu.value = false
-    
-    // Redirect alla pagina logout dedicata
-    await router.push('/logout')
-    
+    flashMessage.value = 'Logout effettuato con successo!'
+    setTimeout(() => flashMessage.value = '', 3000)
   } catch (error) {
     errorMessage.value = 'Errore durante il logout'
     setTimeout(() => errorMessage.value = '', 3000)

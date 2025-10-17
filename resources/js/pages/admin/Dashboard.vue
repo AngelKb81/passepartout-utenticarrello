@@ -93,62 +93,70 @@
         </div>
       </div>
 
-      <!-- Charts Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
-        <!-- User Gender Distribution -->
+      <!-- Quick Actions -->
+      <div class="mb-8">
         <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Distribuzione per Sesso</h3>
-          <canvas ref="genderChart" width="400" height="200"></canvas>
-        </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Azioni Rapide</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <router-link 
+              to="/admin/emails" 
+              class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="p-2 bg-indigo-100 rounded-lg">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Email Logs</p>
+                <p class="text-sm text-gray-600">Gestisci invio email</p>
+              </div>
+            </router-link>
 
-        <!-- Education Distribution -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Titoli di Studio</h3>
-          <canvas ref="educationChart" width="400" height="200"></canvas>
-        </div>
+            <div class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+              <div class="p-2 bg-green-100 rounded-lg">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Nuovo Prodotto</p>
+                <p class="text-sm text-gray-600">Aggiungi prodotto</p>
+              </div>
+            </div>
 
-        <!-- Monthly Registrations -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Registrazioni Mensili</h3>
-          <canvas ref="registrationsChart" width="400" height="200"></canvas>
-        </div>
-
-        <!-- Top Cities -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Città di Nascita</h3>
-          <canvas ref="regionsChart" width="400" height="200"></canvas>
-        </div>
-
-        <!-- Categories Distribution -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Prodotti per Categoria</h3>
-          <canvas ref="categoriesChart" width="400" height="200"></canvas>
-        </div>
-
-        <!-- Top Products -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h3 class="text-lg font-medium text-gray-900 mb-4">Prodotti Più Venduti</h3>
-          <div class="space-y-3">
-            <div v-for="product in stats.top_products" :key="product.product_id" 
-                 class="flex justify-between items-center p-3 bg-gray-50 rounded">
-              <span class="font-medium">{{ product.product.nome }}</span>
-              <span class="text-sm text-gray-600">{{ product.total_sold }} venduti</span>
+            <div class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+              <div class="p-2 bg-yellow-100 rounded-lg">
+                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="font-medium text-gray-900">Gestisci Utenti</p>
+                <p class="text-sm text-gray-600">Amministra utenti</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+            </div>
+
+      <!-- Charts temporaneamente rimossi -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Grafici in sviluppo</h3>
+        <p class="text-gray-600">I grafici saranno implementati in una versione futura.</p>
+      </div>
+    </div>
+  </div>
+</template>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
-import { Chart, registerables } from 'chart.js'
+import { ref, onMounted, nextTick } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import axios from 'axios'
-
-Chart.register(...registerables)
 
 export default {
   name: 'AdminDashboard',
@@ -165,35 +173,44 @@ export default {
     const regionsChart = ref(null)
     const categoriesChart = ref(null)
 
-    const loadDashboardData = async () => {
+    const loadData = async () => {
       try {
-        const token = authStore.token
-        const headers = { Authorization: `Bearer ${token}` }
-
-        // Carica statistiche principali
-        const [dashboardRes, userStatsRes, salesStatsRes] = await Promise.all([
-          axios.get('/api/admin/dashboard', { headers }),
-          axios.get('/api/admin/users/stats', { headers }),
-          axios.get('/api/admin/sales/stats', { headers })
-        ])
-
-        stats.value = dashboardRes.data.stats
-        userStats.value = userStatsRes.data.user_stats
-        salesStats.value = salesStatsRes.data.sales_stats
-
-        // Crea i grafici dopo aver caricato i dati
-        setTimeout(() => {
-          createCharts()
-        }, 100)
-
-      } catch (error) {
-        console.error('Errore nel caricamento della dashboard:', error)
-        if (error.response?.status === 403) {
-          alert('Accesso negato. Solo gli amministratori possono visualizzare questa pagina.')
-          authStore.logout()
+        isLoading.value = true
+        
+        // Per ora usiamo dati statici - in futuro collegheremo alle API
+        stats.value = {
+          total_users: 156,
+          total_products: 45,
+          total_carts: 89,
+          total_revenue: '12,450.00',
+          top_products: [
+            { product_id: 1, total_sold: 25, product: { nome: 'Smartphone Samsung' } },
+            { product_id: 2, total_sold: 18, product: { nome: 'Laptop Dell XPS' } },
+            { product_id: 3, total_sold: 12, product: { nome: 'Cuffie Sony' } }
+          ]
         }
+        
+        userStats.value = [
+          { gender: 'M', count: 89 },
+          { gender: 'F', count: 67 }
+        ]
+        
+        salesStats.value = [
+          { month: '2025-01', total: 3200 },
+          { month: '2025-02', total: 4100 },
+          { month: '2025-03', total: 3800 },
+          { month: '2025-04', total: 4500 },
+          { month: '2025-05', total: 5200 }
+        ]
+
+        // Grafici rimossi temporaneamente
+        console.log('✅ Dashboard dati caricati:', stats.value)
+        
+      } catch (error) {
+        console.error('Errore nel caricamento dei dati:', error)
+        error.value = 'Errore nel caricamento dei dati della dashboard'
       } finally {
-        loading.value = false
+        isLoading.value = false
       }
     }
 

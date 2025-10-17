@@ -11,11 +11,15 @@ import App from './App.vue'
 import Home from './pages/Home.vue'
 import Login from './pages/auth/Login.vue'
 import Register from './pages/auth/Register.vue'
+import ForgotPassword from './pages/auth/ForgotPassword.vue'
+import ResetPassword from './pages/auth/ResetPassword.vue'
 import Profile from './pages/auth/Profile.vue'
+import Logout from './pages/Logout.vue'
 import Products from './pages/products/Products.vue'
 import ProductDetail from './pages/products/ProductDetail.vue'
 import Cart from './pages/cart/Cart.vue'
-import Dashboard from './pages/admin/Dashboard.vue'
+import Dashboard from './pages/admin/DashboardSimple.vue'
+import EmailLogs from './pages/admin/EmailLogs.vue'
 
 // Import dei composables/stores
 import { useAuthStore } from './stores/auth'
@@ -68,10 +72,28 @@ const routes = [
         meta: { requiresGuest: true }
     },
     {
+        path: '/forgot-password',
+        name: 'forgot-password',
+        component: ForgotPassword,
+        meta: { requiresGuest: true }
+    },
+    {
+        path: '/reset-password',
+        name: 'reset-password',
+        component: ResetPassword,
+        meta: { requiresGuest: true }
+    },
+    {
         path: '/profile',
         name: 'profile',
         component: Profile,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/logout',
+        name: 'logout',
+        component: Logout,
+        meta: { requiresAuth: false }
     },
     {
         path: '/products',
@@ -96,6 +118,12 @@ const routes = [
         path: '/admin/dashboard',
         name: 'admin-dashboard',
         component: Dashboard,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/emails',
+        name: 'admin-emails',
+        component: EmailLogs,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

@@ -113,6 +113,32 @@ DB_USERNAME=root
 DB_PASSWORD=la_tua_password
 ```
 
+## 📧 Configurazione Email (SMTP)
+
+L'applicazione invia email per:
+- ✅ Benvenuto dopo registrazione
+- ✅ Reset password
+- ✅ Conferma cambio email
+
+**Configurazione rapida con Mailtrap (gratuito):**
+
+1. Registrati su [Mailtrap.io](https://mailtrap.io)
+2. Copia le credenziali SMTP dalla tua inbox
+3. Aggiorna `.env`:
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=il_tuo_username
+MAIL_PASSWORD=la_tua_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="noreply@passepartout.test"
+MAIL_FROM_NAME="${APP_NAME}"
+```
+4. Pulisci cache: `php artisan config:clear`
+
+📚 **Guida completa SMTP** (Gmail, SendGrid, Mailgun, MailHog): Vedi [SMTP_SETUP.md](SMTP_SETUP.md)
+
 ## 👤 Credenziali Test
 
 ### Admin
