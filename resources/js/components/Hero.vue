@@ -50,10 +50,10 @@ const authStore = useAuthStore()
 </script>
 
 <style scoped>
-/* Sezione Hero: centrata e spaziosa */
+/* Sezione Hero: centrata con ampio respiro */
 .hero {
   background: #f9fafb;
-  padding: 5rem 2rem;
+  padding: 5rem 2rem 4rem 2rem;
   text-align: center;
 }
 
@@ -67,7 +67,7 @@ const authStore = useAuthStore()
   font-size: 3rem;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.25rem 0;
   line-height: 1.2;
   font-family: 'Inter', Arial, sans-serif;
 }
@@ -76,7 +76,7 @@ const authStore = useAuthStore()
 .hero-description {
   font-size: 1.25rem;
   color: #6b7280;
-  margin: 0 0 2.5rem 0;
+  margin: 0 0 2rem 0;
   line-height: 1.6;
 }
 
@@ -125,6 +125,10 @@ const authStore = useAuthStore()
 
 /* Responsive: tablet */
 @media (max-width: 1024px) {
+  .hero {
+    padding: 4rem 2rem 3rem 2rem;
+  }
+
   .hero-title {
     font-size: 2.5rem;
   }
@@ -137,7 +141,7 @@ const authStore = useAuthStore()
 /* Responsive: mobile */
 @media (max-width: 768px) {
   .hero {
-    padding: 3rem 1.5rem;
+    padding: 3rem 1.5rem 2.5rem 1.5rem;
   }
 
   .hero-title {

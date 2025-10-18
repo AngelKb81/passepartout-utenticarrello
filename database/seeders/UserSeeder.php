@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         // Utente admin
         $adminUserId = DB::table('users')->insertGetId([
-            'name' => 'Mario',
+            'nome' => 'Mario',
             'cognome' => 'Rossi',
             'email' => 'admin@passepartout-utenticarrello.test',
             'email_verified_at' => now(),
@@ -32,7 +32,7 @@ class UserSeeder extends Seeder
         // Utenti standard di test
         $users = [
             [
-                'name' => 'Giulia',
+                'nome' => 'Giulia',
                 'cognome' => 'Bianchi',
                 'email' => 'giulia.bianchi@email.test',
                 'email_verified_at' => now(),
@@ -44,7 +44,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Francesco',
+                'nome' => 'Francesco',
                 'cognome' => 'Verde',
                 'email' => 'francesco.verde@email.test',
                 'email_verified_at' => now(),
@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Chiara',
+                'nome' => 'Chiara',
                 'cognome' => 'Neri',
                 'email' => 'chiara.neri@email.test',
                 'email_verified_at' => now(),

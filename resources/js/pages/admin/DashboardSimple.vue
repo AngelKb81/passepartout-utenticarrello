@@ -1,8 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
+  <div class="bg-gray-50 py-6">
     <div class="max-w-7xl mx-auto px-4">
       <!-- Header -->
-      <div class="mb-8">
+      <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard Admin</h1>
         <p class="text-gray-600 mt-1">Panoramica generale del sistema</p>
       </div>
@@ -21,9 +21,9 @@
       <!-- Dashboard Content -->
       <div v-else>
         <!-- Statistics Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
           <!-- Users Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Utenti Totali</p>
@@ -38,7 +38,7 @@
           </div>
 
           <!-- Products Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Prodotti</p>
@@ -53,7 +53,7 @@
           </div>
 
           <!-- Carts Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Carrelli</p>
@@ -68,7 +68,7 @@
           </div>
 
           <!-- Email Sent Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-600">Email Inviate</p>
@@ -84,9 +84,9 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Quick Actions Card -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Azioni Rapide</h3>
             <div class="grid grid-cols-2 gap-4">
               <router-link 
@@ -118,7 +118,7 @@
           </div>
 
           <!-- Prodotti per Categoria -->
-          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Prodotti per Categoria</h3>
             <div class="space-y-3">
               <div v-for="category in stats.top_products" :key="category.categoria" 
@@ -133,10 +133,29 @@
           </div>
         </div>
 
-        <!-- Charts Placeholder -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Analytics</h3>
-          <p class="text-gray-600">I grafici e le analitiche dettagliate saranno implementati nella prossima versione.</p>
+                <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Registrazioni Utenti per Mese -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Registrazioni Utenti</h3>
+              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">DEMO</span>
+            </div>
+            <div class="h-40">
+              <canvas ref="userChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Vendite per Categoria -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-semibold text-gray-900">Vendite per Categoria</h3>
+              <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">DEMO</span>
+            </div>
+            <div class="h-40">
+              <canvas ref="salesChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -148,6 +167,10 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useAuthRedirect } from '../../composables/useAuthRedirect'
+import { Chart, registerables } from 'chart.js'
+
+// Registra tutti i componenti Chart.js
+Chart.register(...registerables)
 
 // Store references
 const authStore = useAuthStore()
@@ -160,6 +183,12 @@ watchAdminAccess()
 const isLoading = ref(true)
 const error = ref('')
 const stats = ref({})
+
+// Chart refs
+const userChart = ref(null)
+const salesChart = ref(null)
+let userChartInstance = null
+let salesChartInstance = null
 
 // Methods
 const loadData = async () => {
@@ -194,8 +223,112 @@ const loadData = async () => {
   }
 }
 
+// Chart functions
+const createUserChart = () => {
+  if (userChart.value) {
+    userChartInstance = new Chart(userChart.value, {
+      type: 'line',
+      data: {
+        labels: ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu'],
+        datasets: [{
+          label: 'Nuovi Utenti',
+          data: [12, 19, 8, 15, 25, 18],
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          title: {
+            display: true,
+            text: 'Dati dimostrativi - Non reali',
+            font: { size: 10 },
+            color: '#666',
+            padding: 10
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0,0,0,0.05)'
+            },
+            ticks: {
+              font: { size: 11 }
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: { size: 11 }
+            }
+          }
+        }
+      }
+    })
+  }
+}
+
+const createSalesChart = () => {
+  if (salesChart.value) {
+    salesChartInstance = new Chart(salesChart.value, {
+      type: 'doughnut',
+      data: {
+        labels: ['Elettronica', 'Abbigliamento', 'Casa', 'Sport', 'Libri'],
+        datasets: [{
+          data: [35, 25, 20, 12, 8],
+          backgroundColor: [
+            'rgb(59, 130, 246)',
+            'rgb(16, 185, 129)',
+            'rgb(245, 158, 11)',
+            'rgb(239, 68, 68)',
+            'rgb(139, 92, 246)'
+          ],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 8,
+              usePointStyle: true,
+              font: { size: 11 }
+            }
+          },
+          title: {
+            display: true,
+            text: 'Dati dimostrativi - Non reali',
+            font: { size: 10 },
+            color: '#666',
+            padding: 8
+          }
+        }
+      }
+    })
+  }
+}
+
 // Lifecycle
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  await loadData()
+  
+  // Crea i grafici dopo il caricamento dei dati
+  setTimeout(() => {
+    createUserChart()
+    createSalesChart()
+  }, 100)
 })
 </script>

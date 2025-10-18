@@ -13,11 +13,20 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Prima copiamo i dati da 'name' a 'nome' se 'nome' è vuoto
-            DB::statement('UPDATE users SET nome = name WHERE nome IS NULL OR nome = ""');
+            // Aggiungiamo prima la colonna 'nome' se non esiste
+            if (!Schema::hasColumn('users', 'nome')) {
+                $table->string('nome')->nullable()->after('id');
+            }
+        });
 
+        // Ora copiamo i dati da 'name' a 'nome'
+        DB::statement('UPDATE users SET nome = name WHERE nome IS NULL OR nome = ""');
+
+        Schema::table('users', function (Blueprint $table) {
             // Eliminiamo la colonna 'name' ora inutile
-            $table->dropColumn('name');
+            if (Schema::hasColumn('users', 'name')) {
+                $table->dropColumn('name');
+            }
         });
     }
 
