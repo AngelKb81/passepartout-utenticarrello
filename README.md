@@ -116,6 +116,43 @@ php artisan serve & npm run dev
 
 🎯 **L'app sarà accessibile su: http://127.0.0.1:8000**
 
+## 🎯 Setup Automatico (Ancora Più Rapido!)
+
+**Per chi preferisce un setup completamente automatizzato:**
+
+```bash
+# 1. Clone del repository
+git clone https://github.com/AngelKb81/passepartout-utenticarrello.git
+cd passepartout-utenticarrello
+
+# 2. Esegui script di setup automatico
+./setup.sh
+```
+
+🎉 **Script `setup.sh` include:**
+- ✅ Controllo requisiti di sistema (PHP, Composer, Node.js, NPM)
+- ✅ Installazione automatica dipendenze (`composer install && npm install`)
+- ✅ Configurazione environment (`.env` da `.env.example`)
+- ✅ Generazione chiave applicazione
+- ✅ **Setup database interattivo** - ti chiede credenziali MySQL
+- ✅ Migrazione e seeding automatici
+- ✅ Ottimizzazioni di produzione
+- ✅ Mostra credenziali di test alla fine
+
+**Dopo setup automatico, avvia con:**
+
+```bash
+# Avvia entrambi i server con un comando
+./start.sh
+```
+
+🚀 **Script `start.sh` include:**
+- ✅ Controllo e liberazione porte (8000, 5173)
+- ✅ Avvio automatico Laravel serve
+- ✅ Avvio automatico Vite dev server
+- ✅ Gestione processi background
+- ✅ Stop coordinato con CTRL+C
+
 ## 🔧 Configurazione Database
 
 Modifica il file `.env` con le tue credenziali:
