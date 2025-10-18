@@ -28,7 +28,7 @@ class CartController extends Controller
     {
         try {
             $cartData = $this->cartService->getUserCart($request->user()->id);
-            
+
             // Struttura compatibile sia con test che con frontend
             if (isset($cartData['items']) && count($cartData['items']) === 0) {
                 // Carrello vuoto - formato per test
@@ -270,7 +270,7 @@ class CartController extends Controller
 
             $user = $request->user();
             $cartData = $this->cartService->getUserCart($user->id);
-            
+
             // Controllo carrello vuoto
             if (!$cartData || !isset($cartData['items']) || count($cartData['items']) === 0) {
                 return response()->json([
