@@ -20,6 +20,7 @@ import ProductDetail from './pages/products/ProductDetail.vue'
 import Cart from './pages/cart/Cart.vue'
 import Dashboard from './pages/admin/DashboardSimple.vue'
 import EmailLogs from './pages/admin/EmailLogs.vue'
+import ProductManagement from './pages/admin/ProductManagement.vue'
 
 // Import dei composables/stores
 import { useAuthStore } from './stores/auth'
@@ -124,6 +125,12 @@ const routes = [
         path: '/admin/emails',
         name: 'admin-emails',
         component: EmailLogs,
+        meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+        path: '/admin/products',
+        name: 'admin-products',
+        component: ProductManagement,
         meta: { requiresAuth: true, requiresAdmin: true }
     },
     {

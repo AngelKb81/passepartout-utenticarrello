@@ -77,6 +77,12 @@
                       </svg>
                       Dashboard
                     </router-link>
+                    <router-link to="/admin/products" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
+                      <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                      </svg>
+                      Gestione Prodotti
+                    </router-link>
                     <router-link to="/admin/emails" class="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-colors">
                       <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -131,6 +137,7 @@
               <div v-if="authStore.isAdmin" class="border-t border-gray-200 pt-2 mt-2">
                 <p class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Admin</p>
                 <router-link to="/admin/dashboard" @click="showMobileMenu = false" class="block px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium">Dashboard</router-link>
+                <router-link to="/admin/products" @click="showMobileMenu = false" class="block px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium">Gestione Prodotti</router-link>
                 <router-link to="/admin/emails" @click="showMobileMenu = false" class="block px-3 py-2 text-gray-700 hover:text-indigo-600 font-medium">Email Logs</router-link>
               </div>
               
@@ -202,7 +209,7 @@
 
         <!-- Bottom -->
         <div class="border-t border-gray-200 pt-8 mt-8 text-center">
-          <p class="text-gray-600">&copy; {{ new Date().getFullYear() }} Passepartout. Tutti i diritti riservati.</p>
+          <p class="text-gray-600">&copy; {{ new Date().getFullYear() }} CodeChallenge per Passepartout</p>
         </div>
       </div>
     </footer>

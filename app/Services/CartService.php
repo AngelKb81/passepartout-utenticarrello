@@ -230,15 +230,19 @@ class CartService
             'items' => $cart->items->map(function ($item) {
                 return [
                     'id' => $item->id,
+                    'product_id' => $item->product_id,
                     'product' => [
                         'id' => $item->product->id,
                         'nome' => $item->product->nome,
                         'codice' => $item->product->codice,
-                        'prezzo_attuale' => $item->product->prezzo,
-                        'immagine_url' => $item->product->immagine_url,
+                        'descrizione' => $item->product->descrizione,
+                        'prezzo' => $item->product->prezzo,  // Cambiato da prezzo_attuale
+                        'immagine' => $item->product->immagine,  // Cambiato da immagine_url
+                        'categoria' => $item->product->categoria,
                         'disponibile' => $item->product->isAvailable(),
                     ],
                     'quantita' => $item->quantita,
+                    'quantity' => $item->quantita,  // Alias per compatibilità
                     'prezzo_unitario' => $item->prezzo_unitario,
                     'subtotale' => $item->subtotale,
                 ];

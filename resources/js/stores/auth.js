@@ -67,6 +67,14 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('auth_token', token)
         localStorage.setItem('user', JSON.stringify(user))
         
+        // Sincronizza il carrello guest dopo il login
+        // Nota: importazione ritardata per evitare dipendenze circolari
+        setTimeout(async () => {
+          const { useCartStore } = await import('./cart.js')
+          const cartStore = useCartStore()
+          await cartStore.syncGuestCartOnLogin()
+        }, 100)
+        
         return { success: true, data: response.data }
       } catch (error) {
         const message = error.response?.data?.message || 'Errore durante il login'

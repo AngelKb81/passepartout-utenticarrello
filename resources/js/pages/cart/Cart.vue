@@ -42,11 +42,18 @@
               />
             </div>
 
-            <!-- Info prodotto -->
+            <!-- Info prodotto completa -->
             <div class="item-info">
               <h3 class="item-title">{{ item.product.nome }}</h3>
-              <p class="item-category">{{ item.product.categoria }}</p>
-              <span class="item-price">€{{ formatPrice(item.product.prezzo) }}</span>
+              <p class="item-code">Codice: <strong>{{ item.product.codice }}</strong></p>
+              <p class="item-category">Categoria: {{ item.product.categoria }}</p>
+              <div class="item-description">
+                <p>{{ item.product.descrizione }}</p>
+              </div>
+              <div class="item-price-info">
+                <span class="price-label">Prezzo unitario:</span>
+                <span class="item-price">€{{ formatPrice(item.product.prezzo) }}</span>
+              </div>
             </div>
 
             <!-- Controlli quantità -->
@@ -160,7 +167,16 @@ const items = computed(() => cartStore.items || [])
 // Computed: subtotale
 const subtotal = computed(() => {
   return items.value.reduce((sum, item) => {
-    return sum + (item.product.prezzo * item.quantita)
+    // Converte il prezzo a numero e gestisce valori non validi
+    const prezzo = parseFloat(item.product.prezzo)
+    const quantita = parseInt(item.quantita)
+    
+    if (isNaN(prezzo) || isNaN(quantita)) {
+      console.warn('Valori non validi per item:', item)
+      return sum
+    }
+    
+    return sum + (prezzo * quantita)
   }, 0)
 })
 
@@ -178,7 +194,7 @@ const total = computed(() => {
 const loadCart = async () => {
   try {
     loading.value = true
-    await cartStore.fetchCart()
+    await cartStore.loadCartItems()
   } catch (error) {
     console.error('Errore caricamento carrello:', error)
     showMessage('Errore caricamento carrello', 'error')
@@ -212,7 +228,7 @@ const updateQuantity = async (item, newQuantity) => {
   try {
     updatingItem.value[item.id] = true
     
-    const result = await cartStore.updateQuantity(item.id, newQuantity)
+    const result = await cartStore.updateQuantity(item.product_id || item.product.id, newQuantity)
     
     if (result.success) {
       showMessage('Quantità aggiornata', 'success')
@@ -236,7 +252,7 @@ const removeItem = async (item) => {
   try {
     updatingItem.value[item.id] = true
     
-    const result = await cartStore.removeFromCart(item.id)
+    const result = await cartStore.removeFromCart(item.product_id || item.product.id)
     
     if (result.success) {
       showMessage('Prodotto rimosso dal carrello', 'success')
@@ -258,25 +274,47 @@ const proceedToCheckout = async () => {
     return
   }
   
-  try {
-    processingCheckout.value = true
-    
-    // Chiama API checkout
-    const result = await cartStore.checkout()
-    
-    if (result.success) {
-      showMessage('Ordine completato con successo!', 'success')
+  // Simula processing per UX
+  processingCheckout.value = true
+  
+  // Attendi un po' per mostrare il loading
+  await new Promise(resolve => setTimeout(resolve, 800))
+  
+  processingCheckout.value = false
+  
+  // Mostra popup informativo
+  const userConfirm = confirm(
+    `🛒 DEMO E-COMMERCE - CHECKOUT SIMULATO\n\n` +
+    `✅ Il carrello funziona perfettamente!\n` +
+    `✅ Prodotti: ${items.value.length} articoli\n` +
+    `✅ Totale: €${formatPrice(total.value)}\n\n` +
+    `ℹ️ Questo è un sito di test/demo.\n` +
+    `💡 La funzionalità di checkout completa sarà implementata in futuro.\n\n` +
+    `Vuoi svuotare il carrello per testare di nuovo?`
+  )
+  
+  if (userConfirm) {
+    // Se l'utente conferma, svuota il carrello
+    try {
+      console.log('🗑️ Inizio processo svuotamento carrello...')
+      
+      // Forza svuotamento completo
+      await cartStore.clearCart()
+      
+      // Forza ricaricamento per essere sicuri
+      console.log('🔄 Ricarico carrello dopo clear...')
+      await cartStore.loadCartItems()
+      
+      showMessage('🛒 Carrello svuotato! Grazie per aver testato il sistema.', 'success')
       setTimeout(() => {
-        router.push('/orders') // O dashboard utente
-      }, 1500)
-    } else {
-      showMessage(result.message || 'Errore durante il checkout', 'error')
+        router.push('/products')
+      }, 2000)
+    } catch (error) {
+      console.error('❌ Errore svuotamento:', error)
+      showMessage('Errore nello svuotamento del carrello', 'error')
     }
-  } catch (error) {
-    console.error('Errore checkout:', error)
-    showMessage('Errore durante il checkout. Riprova.', 'error')
-  } finally {
-    processingCheckout.value = false
+  } else {
+    showMessage('💡 Puoi continuare a testare le funzionalità del carrello!', 'info')
   }
 }
 
@@ -291,10 +329,27 @@ const showMessage = (text, type = 'success') => {
 
 // Ottieni immagine prodotto
 const getProductImage = (product) => {
-  if (product.immagine && product.immagine.startsWith('/images/')) {
+  if (!product || !product.immagine) {
+    return '/images/products/default-product.jpg'
+  }
+  
+  // Se è già un URL completo, usalo così com'è
+  if (product.immagine.startsWith('http')) {
     return product.immagine
   }
-  return '/images/products/default-product.jpg'
+  
+  // Se inizia con /, è già un percorso assoluto
+  if (product.immagine.startsWith('/')) {
+    return product.immagine
+  }
+  
+  // Se le immagini sono in public/images/products
+  if (product.immagine.startsWith('products/')) {
+    return `/images/${product.immagine}`
+  }
+  
+  // Altrimenti, è un percorso relativo da storage
+  return `/storage/${product.immagine}`
 }
 
 // Gestisci errore immagine
@@ -304,10 +359,17 @@ const handleImageError = (event) => {
 
 // Formatta prezzo
 const formatPrice = (price) => {
+  // Converte a numero e gestisce valori non validi
+  const numPrice = parseFloat(price)
+  if (isNaN(numPrice)) {
+    console.warn('Prezzo non valido:', price)
+    return '0.00'
+  }
+  
   return new Intl.NumberFormat('it-IT', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(price)
+  }).format(numPrice)
 }
 
 // Carica carrello al mount
@@ -424,26 +486,28 @@ onMounted(() => {
 /* Singolo item */
 .cart-item {
   display: grid;
-  grid-template-columns: 120px 1fr 250px;
-  gap: 1.5rem;
+  grid-template-columns: 140px 1fr 280px;
+  gap: 2rem;
   background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 4px;
-  padding: 1.5rem;
-  transition: border-color 0.2s ease;
+  border-radius: 8px;
+  padding: 2rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .cart-item:hover {
   border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
 }
 
 /* Immagine item */
 .item-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 4px;
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
   overflow: hidden;
   background: #f3f4f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .item-image img {
@@ -457,20 +521,54 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 1;
+  gap: 0.5rem;
 }
 
 .item-title {
   font-size: 1.125rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.item-code {
+  font-size: 0.875rem;
+  color: #4b5563;
+  font-family: 'Courier New', monospace;
 }
 
 .item-category {
   font-size: 0.875rem;
   color: #6b7280;
   text-transform: capitalize;
-  margin-bottom: 0.75rem;
+}
+
+.item-description {
+  margin: 0.5rem 0;
+  max-width: 400px;
+}
+
+.item-description p {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-price-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.price-label {
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .item-price {

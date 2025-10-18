@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Carrello</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        .info { background: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Test Funzionalità Carrello</h1>
+    
+    <div class="test-section info">
+        <h3>Test Plan</h3>
+        <ol>
+            <li>Aprire l'applicazione in incognito</li>
+            <li>Andare alla pagina prodotti</li>
+            <li>Aggiungere alcuni prodotti al carrello (come guest)</li>
+            <li>Aprire la pagina carrello per verificare:
+                <ul>
+                    <li>✅ Immagini prodotti caricate correttamente</li>
+                    <li>✅ Prezzi visualizzati correttamente (no €NaN)</li>
+                    <li>✅ Totali calcolati correttamente</li>
+                    <li>✅ Prodotti salvati in localStorage</li>
+                </ul>
+            </li>
+            <li>Fare login con un account utente</li>
+            <li>Verificare che i prodotti del carrello guest vengano sincronizzati</li>
+            <li>Testare modifica quantità e rimozione prodotti</li>
+        </ol>
+    </div>
+
+    <div class="test-section info">
+        <h3>Urls da Testare</h3>
+        <ul>
+            <li><a href="http://localhost:5174/" target="_blank">Homepage</a></li>
+            <li><a href="http://localhost:5174/products" target="_blank">Pagina Prodotti</a></li>
+            <li><a href="http://localhost:5174/cart" target="_blank">Carrello</a></li>
+            <li><a href="http://localhost:5174/login" target="_blank">Login</a></li>
+        </ul>
+    </div>
+
+    <div class="test-section info">
+        <h3>Console Log da Monitorare</h3>
+        <p>Aprire Developer Tools (F12) e controllare:</p>
+        <ul>
+            <li><code>localStorage.getItem('guest_cart')</code> - Carrello guest</li>
+            <li>Messaggi di sincronizzazione: "Sincronizzazione carrello guest con X prodotti"</li>
+            <li>Errori di caricamento immagini o calcolo prezzi</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h3>Account Test</h3>
+        <p><strong>Admin:</strong> admin@test.it / password</p>
+        <p><strong>User:</strong> user@test.it / password</p>
+    </div>
+
+    <script>
+        // Test del localStorage
+        console.log('=== TEST CARRELLO ===');
+        console.log('localStorage guest_cart:', localStorage.getItem('guest_cart'));
+        
+        // Funzione per testare il carrello
+        window.testCart = function() {
+            const cart = localStorage.getItem('guest_cart');
+            if (cart) {
+                console.log('Carrello Guest trovato:', JSON.parse(cart));
+            } else {
+                console.log('Nessun carrello guest trovato');
+            }
+        };
+        
+        console.log('Usa testCart() per controllare il carrello guest');
+    </script>
+</body>
+</html>
