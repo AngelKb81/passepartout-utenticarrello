@@ -44,6 +44,9 @@ class AuthController extends Controller
                 // Non bloccare la registrazione se l'email fallisce
             }
 
+            // Genera token per login automatico dopo registrazione
+            $token = $user->createToken('auth-token')->plainTextToken;
+
             return response()->json([
                 'message' => 'Registrazione completata con successo',
                 'user' => [
@@ -56,7 +59,8 @@ class AuthController extends Controller
                     'citta_residenza' => $user->citta_residenza,
                     'titolo_studio' => $user->titolo_studio,
                     'professione' => $user->professione,
-                ]
+                ],
+                'token' => $token
             ], 201);
         } catch (\Exception $e) {
             Log::error('❌ Errore registrazione:', [
@@ -100,6 +104,7 @@ class AuthController extends Controller
                 'message' => 'Login effettuato con successo!',
                 'user' => [
                     'id' => $user->id,
+                    'name' => $user->nome . ' ' . $user->cognome, // Per compatibilità test
                     'nome' => $user->nome,
                     'cognome' => $user->cognome,
                     'email' => $user->email,
@@ -130,7 +135,7 @@ class AuthController extends Controller
             $request->user()->currentAccessToken()->delete();
 
             return response()->json([
-                'message' => 'Logout effettuato con successo!'
+                'message' => 'Logout effettuato con successo'
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -149,20 +154,19 @@ class AuthController extends Controller
             $user = $request->user()->load('roles');
 
             return response()->json([
-                'user' => [
-                    'id' => $user->id,
-                    'nome' => $user->nome,
-                    'cognome' => $user->cognome,
-                    'email' => $user->email,
-                    'titolo_studi' => $user->titolo_studi,
-                    'data_nascita' => $user->data_nascita ? $user->data_nascita->format('Y-m-d') : null,
-                    'citta_nascita' => $user->citta_nascita,
-                    'roles' => $user->roles->pluck('name'),
-                    'is_admin' => $user->isAdmin(),
-                    'email_verified_at' => $user->email_verified_at,
-                    'created_at' => $user->created_at,
-                    'updated_at' => $user->updated_at,
-                ]
+                'id' => $user->id,
+                'name' => $user->nome . ' ' . $user->cognome, // Per compatibilità test
+                'nome' => $user->nome,
+                'cognome' => $user->cognome,
+                'email' => $user->email,
+                'titolo_studi' => $user->titolo_studi,
+                'data_nascita' => $user->data_nascita ? $user->data_nascita->format('Y-m-d') : null,
+                'citta_nascita' => $user->citta_nascita,
+                'roles' => $user->roles->pluck('name'),
+                'is_admin' => $user->isAdmin(),
+                'email_verified_at' => $user->email_verified_at,
+                'created_at' => $user->created_at,
+                'updated_at' => $user->updated_at,
             ]);
         } catch (\Exception $e) {
             return response()->json([

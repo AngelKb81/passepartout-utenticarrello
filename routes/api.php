@@ -30,7 +30,13 @@ Route::get('/test-admin', function () {
     ]);
 });
 
-// Routes di autenticazione pubbliche
+// Routes di autenticazione dirette (per compatibilità test)
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
+
+// Routes di autenticazione pubbliche con prefisso (per frontend)
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
@@ -47,7 +53,14 @@ Route::prefix('auth')->group(function () {
     });
 });
 
-// Routes prodotti
+// Routes prodotti dirette (per compatibilità test)
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::post('/products', [ProductController::class, 'store'])->middleware('auth:sanctum');
+Route::put('/products/{id}', [ProductController::class, 'update'])->middleware('auth:sanctum');
+Route::delete('/products/{id}', [ProductController::class, 'destroy'])->middleware('auth:sanctum');
+
+// Routes prodotti con prefisso (per frontend)
 Route::prefix('products')->group(function () {
     // Routes pubbliche
     Route::get('/', [ProductController::class, 'index']);
@@ -64,7 +77,25 @@ Route::prefix('products')->group(function () {
     });
 });
 
-// Routes carrello (tutte richiedono autenticazione)
+// Routes carrello dirette (per compatibilità test)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart/add', [CartController::class, 'addToCart']);
+    Route::put('/cart/update/{id}', [CartController::class, 'updateCartItem']);
+    Route::delete('/cart/remove/{id}', [CartController::class, 'removeCartItem']);
+    Route::post('/cart/checkout', [CartController::class, 'checkout']);
+});
+
+// Routes carrello dirette (per compatibilità test)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart/add', [CartController::class, 'addToCart']);
+    Route::put('/cart/update/{id}', [CartController::class, 'updateCartItem']);
+    Route::delete('/cart/remove/{id}', [CartController::class, 'removeCartItem']);
+    Route::post('/cart/checkout', [CartController::class, 'checkout']);
+});
+
+// Routes carrello con prefisso (per frontend)
 Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [CartController::class, 'index']);
     Route::get('/count', [CartController::class, 'getItemsCount']);

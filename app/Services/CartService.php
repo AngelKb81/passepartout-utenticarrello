@@ -99,6 +99,30 @@ class CartService
     }
 
     /**
+     * Aggiorna un articolo specifico del carrello tramite ID (per test).
+     */
+    public function updateCartItemById(int $userId, int $cartItemId, int $quantity): array
+    {
+        if ($quantity < 0) {
+            throw new \Exception('La quantità non può essere negativa');
+        }
+
+        $cart = $this->cartRepository->updateCartItemById($userId, $cartItemId, $quantity);
+
+        return $this->formatCartForResponse($cart);
+    }
+
+    /**
+     * Rimuove un articolo specifico dal carrello tramite ID (per test).
+     */
+    public function removeCartItemById(int $userId, int $cartItemId): array
+    {
+        $this->cartRepository->removeCartItemById($userId, $cartItemId);
+
+        return $this->getUserCart($userId);
+    }
+
+    /**
      * Ottiene il numero di articoli nel carrello (per badge UI).
      */
     public function getCartItemsCount(int $userId): int

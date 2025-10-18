@@ -26,14 +26,17 @@ class AuthenticationTest extends TestCase
     public function user_can_register_successfully()
     {
         $userData = [
-            'name' => $this->faker->name,
+            'nome' => $this->faker->firstName,
+            'cognome' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail,
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'address' => $this->faker->streetAddress,
             'city' => $this->faker->city,
             'zip_code' => $this->faker->postcode,
-            'titolo_studio' => 'Laurea',
+            'titolo_studi' => 'Laurea',
+            'data_nascita' => $this->faker->date('Y-m-d', '-18 years'),
+            'citta_nascita' => $this->faker->city,
             'role' => 'user',
         ];
 
@@ -41,13 +44,13 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJsonStructure([
-                'user' => ['id', 'name', 'email'],
+                'user' => ['id', 'nome', 'cognome', 'email'],
                 'token'
             ]);
 
         $this->assertDatabaseHas('users', [
             'email' => $userData['email'],
-            'name' => $userData['name'],
+            'nome' => $userData['nome'],
         ]);
     }
 
@@ -55,10 +58,14 @@ class AuthenticationTest extends TestCase
     public function registration_requires_valid_email()
     {
         $userData = [
-            'name' => 'Test User',
+            'nome' => 'Test',
+            'cognome' => 'User',
             'email' => 'invalid-email',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'titolo_studi' => 'Laurea',
+            'data_nascita' => '1990-01-01',
+            'citta_nascita' => 'Roma',
         ];
 
         $response = $this->postJson('/api/register', $userData);
@@ -71,10 +78,14 @@ class AuthenticationTest extends TestCase
     public function registration_requires_password_confirmation()
     {
         $userData = [
-            'name' => 'Test User',
+            'nome' => 'Test',
+            'cognome' => 'User',
             'email' => 'test@example.com',
             'password' => 'password123',
             'password_confirmation' => 'different',
+            'titolo_studi' => 'Laurea',
+            'data_nascita' => '1990-01-01',
+            'citta_nascita' => 'Roma',
         ];
 
         $response = $this->postJson('/api/register', $userData);
@@ -134,7 +145,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'id' => $user->id,
-                'name' => $user->name,
+                'name' => $user->nome . ' ' . $user->cognome, // Nome composto
                 'email' => $user->email,
             ]);
     }
@@ -182,10 +193,14 @@ class AuthenticationTest extends TestCase
         User::factory()->create(['email' => 'existing@example.com']);
 
         $userData = [
-            'name' => 'New User',
+            'nome' => 'New',
+            'cognome' => 'User',
             'email' => 'existing@example.com',
             'password' => 'password123',
             'password_confirmation' => 'password123',
+            'titolo_studi' => 'Laurea',
+            'data_nascita' => '1990-01-01',
+            'citta_nascita' => 'Roma',
         ];
 
         $response = $this->postJson('/api/register', $userData);

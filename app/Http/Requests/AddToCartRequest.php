@@ -16,6 +16,17 @@ class AddToCartRequest extends FormRequest
     }
 
     /**
+     * Prepara i dati per la validazione normalizzando i parametri.
+     */
+    protected function prepareForValidation()
+    {
+        // Normalizza quantity -> quantita per compatibilità test
+        if ($this->has('quantity') && !$this->has('quantita')) {
+            $this->merge(['quantita' => $this->get('quantity')]);
+        }
+    }
+
+    /**
      * Regole di validazione per aggiungere prodotti al carrello.
      */
     public function rules(): array

@@ -142,6 +142,62 @@ class CartRepository extends BaseRepository
     }
 
     /**
+     * Aggiorna un articolo specifico del carrello tramite ID (per test).
+     */
+    public function updateCartItemById(int $userId, int $cartItemId, int $quantity): Cart
+    {
+        $cart = $this->getActiveCartByUser($userId);
+
+        if (!$cart) {
+            throw new \Exception('Carrello non trovato');
+        }
+
+        $cartItem = $cart->items()->where('id', $cartItemId)->first();
+
+        if (!$cartItem) {
+            throw new \Exception('Articolo non trovato nel carrello');
+        }
+
+        if ($quantity <= 0) {
+            $cartItem->delete();
+        } else {
+            // Verifica disponibilità scorte
+            if (!$cartItem->product->hasStock($quantity)) {
+                throw new \Exception('Scorte insufficienti per il prodotto: ' . $cartItem->product->nome);
+            }
+
+            $cartItem->update(['quantita' => $quantity]);
+        }
+
+        $cart->touch('ultimo_aggiornamento');
+
+        return $cart->load(['items.product']);
+    }
+
+    /**
+     * Rimuove un articolo specifico dal carrello tramite ID (per test).
+     */
+    public function removeCartItemById(int $userId, int $cartItemId): bool
+    {
+        $cart = $this->getActiveCartByUser($userId);
+
+        if (!$cart) {
+            return false;
+        }
+
+        $cartItem = $cart->items()->where('id', $cartItemId)->first();
+
+        if (!$cartItem) {
+            return false;
+        }
+
+        $cartItem->delete();
+        $cart->touch('ultimo_aggiornamento');
+
+        return true;
+    }
+
+    /**
      * Calcola il totale del carrello.
      */
     public function getCartTotal(int $userId): float
