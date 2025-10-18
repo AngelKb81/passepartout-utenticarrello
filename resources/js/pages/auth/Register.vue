@@ -341,6 +341,7 @@ const handleRegister = async () => {
       password: form.password,
       password_confirmation: form.password_confirmation
     }
+    console.log('📤 Form values:', form)
     console.log('📤 Dati inviati al backend:', dataToSend)
     
     // Chiamata API tramite store

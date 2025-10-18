@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\AdminDashboardController;
 use App\Http\Controllers\Api\EmailLogController;
 
 /*
@@ -77,17 +78,33 @@ Route::prefix('cart')->middleware('auth:sanctum')->group(function () {
 
 // Routes amministrative (richiedono autenticazione e ruolo admin)
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+    // Dashboard statistiche
+    Route::get('/dashboard/stats', [AdminDashboardController::class, 'getStats']);
+    Route::get('/dashboard/products', [AdminDashboardController::class, 'getProductStats']);
+
+    // Gestione prodotti admin
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::get('/{id}', [ProductController::class, 'show']);
+        Route::put('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+        Route::patch('/{id}/toggle-status', [ProductController::class, 'toggleStatus']);
+        Route::patch('/{id}/update-stock', [ProductController::class, 'updateStock']);
+    });
+
+    // Gestione email logs admin
+    Route::prefix('emails')->group(function () {
+        Route::get('/', [EmailLogController::class, 'index']);
+        Route::get('/stats', [EmailLogController::class, 'stats']);
+        Route::get('/{id}', [EmailLogController::class, 'show']);
+    });
+
+    // Vecchie rotte (mantenute per compatibilità)
     Route::get('/dashboard', [AdminController::class, 'getDashboardStats']);
     Route::get('/users/stats', [AdminController::class, 'getUserStats']);
     Route::get('/sales/stats', [AdminController::class, 'getSalesStats']);
     Route::get('/users', [AdminController::class, 'getUsers']);
-});
-
-// Routes email logs (protette da autenticazione)
-Route::middleware(['auth:sanctum'])->prefix('emails')->group(function () {
-    Route::get('/', [EmailLogController::class, 'index']);
-    Route::get('/stats', [EmailLogController::class, 'stats']);
-    Route::get('/{id}', [EmailLogController::class, 'show']);
 });
 
 // Route per test API

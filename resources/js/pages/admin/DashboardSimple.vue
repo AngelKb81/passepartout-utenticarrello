@@ -67,16 +67,16 @@
             </div>
           </div>
 
-          <!-- Revenue Card -->
+          <!-- Email Sent Card -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm font-medium text-gray-600">Fatturato</p>
-                <p class="text-2xl font-bold text-gray-900 mt-1">€{{ stats.total_revenue }}</p>
+                <p class="text-sm font-medium text-gray-600">Email Inviate</p>
+                <p class="text-2xl font-bold text-gray-900 mt-1">{{ stats.total_emails }}</p>
               </div>
               <div class="p-3 bg-purple-100 rounded-full">
                 <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
               </div>
             </div>
@@ -117,14 +117,17 @@
             </div>
           </div>
 
-          <!-- Top Products -->
+          <!-- Prodotti per Categoria -->
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Prodotti Più Venduti</h3>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Prodotti per Categoria</h3>
             <div class="space-y-3">
-              <div v-for="product in stats.top_products" :key="product.product_id" 
+              <div v-for="category in stats.top_products" :key="category.categoria" 
                    class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <span class="font-medium">{{ product.product.nome }}</span>
-                <span class="text-sm text-gray-600">{{ product.total_sold }} venduti</span>
+                <span class="font-medium capitalize">{{ category.categoria }}</span>
+                <span class="text-sm text-gray-600">{{ category.count }} prodotti</span>
+              </div>
+              <div v-if="stats.top_products.length === 0" class="text-center text-gray-500 py-4">
+                Nessuna categoria disponibile
               </div>
             </div>
           </div>
@@ -142,6 +145,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import { useAuthStore } from '../../stores/auth'
 import { useAuthRedirect } from '../../composables/useAuthRedirect'
 
@@ -162,25 +166,29 @@ const loadData = async () => {
   try {
     isLoading.value = true
     
-    // Simula dati statici per ora
-    await new Promise(resolve => setTimeout(resolve, 500)) // Simula caricamento
+    // Carica dati reali dal backend
+    const response = await axios.get('/admin/dashboard/stats')
     
     stats.value = {
-      total_users: 156,
-      total_products: 45,
-      total_carts: 89,
-      total_revenue: '12,450.00',
-      top_products: [
-        { product_id: 1, total_sold: 25, product: { nome: 'Smartphone Samsung' } },
-        { product_id: 2, total_sold: 18, product: { nome: 'Laptop Dell XPS' } },
-        { product_id: 3, total_sold: 12, product: { nome: 'Cuffie Sony' } }
-      ]
+      total_users: response.data.stats.total_users || 0,
+      total_products: response.data.stats.total_products || 0,
+      total_carts: response.data.stats.total_carts || 0,
+      total_emails: response.data.stats.total_emails || 0,
+      top_products: response.data.stats.products_by_category || []
     }
-    
     
   } catch (err) {
     console.error('Errore caricamento dashboard:', err)
-    error.value = 'Errore nel caricamento dei dati'
+    error.value = 'Errore nel caricamento dei dati. Usando dati di fallback.'
+    
+    // Fallback con dati minimi reali
+    stats.value = {
+      total_users: 0,
+      total_products: 0,
+      total_carts: 0,
+      total_emails: 0,
+      top_products: []
+    }
   } finally {
     isLoading.value = false
   }

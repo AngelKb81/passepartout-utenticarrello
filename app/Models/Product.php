@@ -18,6 +18,7 @@ class Product extends Model
         'nome',
         'codice',
         'descrizione',
+        'categoria',
         'prezzo',
         'immagine',
         'attivo',

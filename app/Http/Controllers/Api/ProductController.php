@@ -26,18 +26,42 @@ class ProductController extends Controller
     }
 
     /**
-     * Lista tutti i prodotti attivi con paginazione.
+     * Lista tutti i prodotti con paginazione e filtri.
+     * Per admin: mostra tutti i prodotti (attivi e inattivi)
+     * Per utenti: mostra solo prodotti attivi
      */
     public function index(Request $request): JsonResponse
     {
         try {
             $perPage = $request->get('per_page', 15);
-            $products = $this->productService->getActiveProducts($perPage);
+            $isAdmin = $request->is('api/admin/*');
+
+            // Raccogli i filtri dalla richiesta
+            $filters = [
+                'categoria' => $request->get('categoria'),
+                'min_price' => $request->get('min_price'),
+                'max_price' => $request->get('max_price'),
+                'search' => $request->get('search'),
+                'sort' => $request->get('sort')
+            ];
+
+            // Rimuovi i filtri vuoti
+            $filters = array_filter($filters, function ($value) {
+                return !is_null($value) && $value !== '';
+            });
+
+            // Per admin mostra tutti i prodotti, altrimenti solo attivi
+            if ($isAdmin) {
+                $products = $this->productService->getAllProducts($perPage, $filters);
+            } else {
+                $products = $this->productService->getActiveProducts($perPage, $filters);
+            }
 
             return response()->json([
                 'message' => 'Prodotti recuperati con successo',
                 'products' => $products['data'],
                 'pagination' => $products['pagination'],
+                'filters' => $filters
             ]);
         } catch (\Exception $e) {
             return response()->json([

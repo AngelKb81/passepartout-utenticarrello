@@ -90,11 +90,31 @@ class ProductService
     }
 
     /**
-     * Ottiene i prodotti attivi con paginazione.
+     * Ottiene i prodotti attivi con paginazione e filtri.
      */
-    public function getActiveProducts(int $perPage = 15): array
+    public function getActiveProducts(int $perPage = 15, array $filters = []): array
     {
-        $products = $this->productRepository->getActiveProductsPaginated($perPage);
+        $products = $this->productRepository->getActiveProductsPaginated($perPage, $filters);
+
+        return [
+            'data' => $products->getCollection()->map(function ($product) {
+                return $this->formatProductForResponse($product);
+            }),
+            'pagination' => [
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'total' => $products->total(),
+            ]
+        ];
+    }
+
+    /**
+     * Ottiene tutti i prodotti (attivi e inattivi) per l'admin.
+     */
+    public function getAllProducts(int $perPage = 15, array $filters = []): array
+    {
+        $products = $this->productRepository->getAllProductsPaginated($perPage, $filters);
 
         return [
             'data' => $products->getCollection()->map(function ($product) {

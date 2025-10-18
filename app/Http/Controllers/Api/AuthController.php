@@ -30,8 +30,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request): JsonResponse
     {
         try {
-            Log::info('🔹 Inizio registrazione utente');
-            Log::info('Dati validati:', $request->validated());
+            Log::info('🔹 Registrazione utente - dati ricevuti', $request->all());
 
             $user = $this->userService->registerUser($request->validated());
             Log::info('✅ Utente creato con successo', ['user_id' => $user->id]);
@@ -316,7 +315,7 @@ class AuthController extends Controller
 
             // Genera URL per reset password (per ora segnaposto)
             // In produzione dovresti generare un token sicuro e salvarlo nel DB
-            $resetUrl = config('app.frontend_url', 'http://localhost:5173') . '/reset-password?email=' . urlencode($user->email);
+            $resetUrl = config('app.url', 'http://127.0.0.1:8000') . '/reset-password?email=' . urlencode($user->email);
 
             // Invia email di reset password
             $user->notify(new \App\Notifications\PasswordResetNotification($resetUrl, $user->nome, $user->id));

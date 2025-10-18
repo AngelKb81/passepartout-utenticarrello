@@ -25,7 +25,7 @@ class AdminUserSeeder extends Seeder
                 'nome' => 'Mario',
                 'cognome' => 'Rossi',
                 'password' => Hash::make('admin123'),
-                'titolo_studi' => 'Laurea in Informatica',
+                'titolo_studi' => 'Laurea',
                 'data_nascita' => '1980-01-01',
                 'citta_nascita' => 'Roma',
                 'email_verified_at' => now(),

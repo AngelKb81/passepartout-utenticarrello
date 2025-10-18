@@ -30,11 +30,15 @@
             <label for="categoria">Categoria</label>
             <select v-model="filters.categoria" id="categoria" @change="pagination.current_page = 1; loadProducts(1)">
               <option value="">Tutte</option>
-              <option value="elettronica">Elettronica</option>
-              <option value="abbigliamento">Abbigliamento</option>
-              <option value="casa">Casa</option>
-              <option value="sport">Sport</option>
-              <option value="libri">Libri</option>
+              <option value="Smartphone">Smartphone</option>
+              <option value="Computer">Computer</option>
+              <option value="Audio">Audio</option>
+              <option value="Tablet">Tablet</option>
+              <option value="Wearable">Wearable</option>
+              <option value="Fotocamere">Fotocamere</option>
+              <option value="Gaming">Gaming</option>
+              <option value="Networking">Networking</option>
+              <option value="Monitor">Monitor</option>
             </select>
           </div>
 

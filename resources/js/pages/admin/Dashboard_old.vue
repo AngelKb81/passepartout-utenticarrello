@@ -161,29 +161,91 @@
       <!-- Charts Section -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         
-        <!-- Prodotti per Categoria - Pie Chart -->
+        <!-- Prodotti per Categoria -->
         <div class="bg-white rounded-lg shadow p-6">
           <h3 class="text-lg font-semibold text-gray-900 mb-4">Prodotti per Categoria</h3>
-          <div class="relative h-64">
-            <canvas ref="categoryChart"></canvas>
+          <div v-if="stats.products_by_category && stats.products_by_category.length > 0" class="space-y-4">
+            <div 
+              v-for="category in stats.products_by_category" 
+              :key="category.categoria"
+              class="flex items-center justify-between"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span class="text-sm font-medium text-gray-700">{{ category.categoria }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="w-20 bg-gray-200 rounded-full h-2">
+                  <div 
+                    class="bg-blue-600 h-2 rounded-full" 
+                    :style="`width: ${(category.count / stats.total_products) * 100}%`"
+                  ></div>
+                </div>
+                <span class="text-sm text-gray-500 w-8 text-right">{{ category.count }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-gray-500 text-center py-8">
+            Nessun dato disponibile
           </div>
         </div>
 
-        <!-- Prodotti più nei Carrelli - Bar Chart -->
+        <!-- Prodotti più nei Carrelli -->
         <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Top Prodotti nei Carrelli</h3>
-          <div class="relative h-64">
-            <canvas ref="topProductsChart"></canvas>
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Prodotti più Aggiunti ai Carrelli</h3>
+          <div v-if="stats.top_cart_products && stats.top_cart_products.length > 0" class="space-y-4">
+            <div 
+              v-for="(item, index) in stats.top_cart_products.slice(0, 5)" 
+              :key="item.product_id"
+              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+            >
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <span class="text-sm font-bold text-green-600">{{ index + 1 }}</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ item.product?.nome || 'Prodotto N/A' }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ item.product?.categoria }}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-bold text-gray-900">{{ item.count }}</p>
+                <p class="text-xs text-gray-500">aggiunte</p>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-gray-500 text-center py-8">
+            Nessun dato disponibile
           </div>
         </div>
 
       </div>
 
-      <!-- Registrazioni Utenti - Line Chart -->
+      <!-- Registrazioni Utenti -->
       <div class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Registrazioni Utenti (Ultimi 6 Mesi)</h3>
-        <div class="relative h-64">
-          <canvas ref="registrationsChart"></canvas>
+        <div v-if="stats.user_registrations && stats.user_registrations.length > 0" class="mt-4">
+          <div class="flex items-end justify-between h-40 space-x-2">
+            <div 
+              v-for="reg in stats.user_registrations" 
+              :key="reg.month"
+              class="flex flex-col items-center flex-1"
+            >
+              <div 
+                class="w-full bg-blue-500 rounded-t-sm min-h-[4px]"
+                :style="`height: ${(reg.count / Math.max(...stats.user_registrations.map(r => r.count))) * 120}px`"
+              ></div>
+              <div class="mt-2 text-xs text-gray-600 text-center">
+                <div>{{ formatMonth(reg.month) }}</div>
+                <div class="font-semibold">{{ reg.count }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="text-gray-500 text-center py-8">
+          Nessun dato disponibile
         </div>
       </div>
 
@@ -192,234 +254,20 @@
 </template>
 
 <script>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 import { useAdminStats } from '../../composables/useAdminStats'
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js'
-
-// Registra i componenti Chart.js
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-)
 
 export default {
   name: 'AdminDashboard',
   setup() {
     const authStore = useAuthStore()
     const { loading, error, stats, loadGeneralStats, loadMockData } = useAdminStats()
-    
-    // Refs per i canvas dei grafici
-    const categoryChart = ref(null)
-    const topProductsChart = ref(null)
-    const registrationsChart = ref(null)
-    
-    // Istanze dei grafici
-    let categoryChartInstance = null
-    let topProductsChartInstance = null
-    let registrationsChartInstance = null
 
     const formatMonth = (monthStr) => {
       const [year, month] = monthStr.split('-')
       const date = new Date(year, month - 1)
       return date.toLocaleDateString('it-IT', { month: 'short', year: '2-digit' })
-    }
-
-    const createCategoryChart = () => {
-      if (!categoryChart.value || !stats.products_by_category?.length) return
-
-      const ctx = categoryChart.value.getContext('2d')
-      
-      // Distruggi il grafico esistente se presente
-      if (categoryChartInstance) {
-        categoryChartInstance.destroy()
-      }
-
-      const colors = [
-        '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6',
-        '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6B7280'
-      ]
-
-      categoryChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-          labels: stats.products_by_category.map(cat => cat.categoria),
-          datasets: [{
-            data: stats.products_by_category.map(cat => cat.count),
-            backgroundColor: colors.slice(0, stats.products_by_category.length),
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                padding: 20,
-                usePointStyle: true
-              }
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0)
-                  const percentage = ((context.parsed / total) * 100).toFixed(1)
-                  return `${context.label}: ${context.parsed} (${percentage}%)`
-                }
-              }
-            }
-          }
-        }
-      })
-    }
-
-    const createTopProductsChart = () => {
-      if (!topProductsChart.value || !stats.top_cart_products?.length) return
-
-      const ctx = topProductsChart.value.getContext('2d')
-      
-      if (topProductsChartInstance) {
-        topProductsChartInstance.destroy()
-      }
-
-      const topProducts = stats.top_cart_products.slice(0, 5)
-
-      topProductsChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: topProducts.map(item => 
-            item.product?.nome ? item.product.nome.substring(0, 20) + '...' : 'N/A'
-          ),
-          datasets: [{
-            label: 'Aggiunte ai carrelli',
-            data: topProducts.map(item => item.count),
-            backgroundColor: '#10B981',
-            borderColor: '#059669',
-            borderWidth: 1,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              callbacks: {
-                title: function(context) {
-                  const index = context[0].dataIndex
-                  return topProducts[index].product?.nome || 'N/A'
-                },
-                label: function(context) {
-                  return `Aggiunte: ${context.parsed.y}`
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
-              }
-            },
-            x: {
-              ticks: {
-                maxRotation: 45,
-                minRotation: 0
-              }
-            }
-          }
-        }
-      })
-    }
-
-    const createRegistrationsChart = () => {
-      if (!registrationsChart.value || !stats.user_registrations?.length) return
-
-      const ctx = registrationsChart.value.getContext('2d')
-      
-      if (registrationsChartInstance) {
-        registrationsChartInstance.destroy()
-      }
-
-      registrationsChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: stats.user_registrations.map(reg => formatMonth(reg.month)),
-          datasets: [{
-            label: 'Nuove registrazioni',
-            data: stats.user_registrations.map(reg => reg.count),
-            borderColor: '#3B82F6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointBackgroundColor: '#3B82F6',
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  return `Registrazioni: ${context.parsed.y}`
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1
-              }
-            }
-          },
-          interaction: {
-            intersect: false,
-            mode: 'index'
-          }
-        }
-      })
-    }
-
-    const createCharts = async () => {
-      await nextTick()
-      createCategoryChart()
-      createTopProductsChart()
-      createRegistrationsChart()
     }
 
     const loadData = async () => {
@@ -431,9 +279,6 @@ export default {
         // Se l'API non è disponibile, carica i dati mock
         loadMockData()
       }
-      
-      // Crea i grafici dopo aver caricato i dati
-      await createCharts()
     }
 
     onMounted(() => {
@@ -444,9 +289,6 @@ export default {
       loading,
       error,
       stats,
-      categoryChart,
-      topProductsChart,
-      registrationsChart,
       loadData,
       formatMonth
     }

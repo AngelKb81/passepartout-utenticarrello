@@ -211,8 +211,8 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        :class="getTemplateClass(email.type)">
-                    {{ getTemplateLabel(email.type) }}
+                        :class="getTemplateClass(email.template_type)">
+                    {{ getTemplateLabel(email.template_type) }}
                   </span>
                 </td>
                 <td class="px-6 py-4">
@@ -220,8 +220,8 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                        :class="getStatusClass(email.status)">
-                    {{ getStatusLabel(email.status) }}
+                        :class="getStatusClass(email.status_type)">
+                    {{ getStatusLabel(email.status_type) }}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -239,7 +239,7 @@
                     </svg>
                   </button>
                   <button
-                    v-if="email.status === 'failed'"
+                    v-if="email.status_type === 'failed'"
                     @click="resendEmail(email)"
                     class="text-green-600 hover:text-green-900"
                     title="Reinvia email"
@@ -307,23 +307,23 @@ export default {
 
     // Computed properties
     const filteredEmails = computed(() => {
-      let filtered = emails.value
+      let filtered = emails.value || []
 
       if (filters.value.search) {
         const search = filters.value.search.toLowerCase()
         filtered = filtered.filter(email => 
-          email.recipient_email.toLowerCase().includes(search) ||
+          email.recipient_email?.toLowerCase().includes(search) ||
           (email.recipient_name && email.recipient_name.toLowerCase().includes(search)) ||
-          email.subject.toLowerCase().includes(search)
+          email.subject?.toLowerCase().includes(search)
         )
       }
 
       if (filters.value.template) {
-        filtered = filtered.filter(email => email.type === filters.value.template)
+        filtered = filtered.filter(email => email.template_type === filters.value.template)
       }
 
       if (filters.value.status) {
-        filtered = filtered.filter(email => email.status === filters.value.status)
+        filtered = filtered.filter(email => email.status_type === filters.value.status)
       }
 
       if (filters.value.period) {
@@ -355,15 +355,16 @@ export default {
     const loadEmails = async () => {
       try {
         loading.value = true
-        const response = await axios.get('/api/admin/emails')
+        const response = await axios.get('/admin/emails')
         emails.value = response.data.data || []
         
         // Calcola stats
+        const emailsArray = emails.value || []
         stats.value = {
-          total: emails.value.length,
-          sent: emails.value.filter(e => e.status === 'sent').length,
-          failed: emails.value.filter(e => e.status === 'failed').length,
-          pending: emails.value.filter(e => e.status === 'pending').length
+          total: emailsArray.length,
+          sent: emailsArray.filter(e => e.status_type === 'sent').length,
+          failed: emailsArray.filter(e => e.status_type === 'failed').length,
+          pending: emailsArray.filter(e => e.status_type === 'pending').length
         }
       } catch (error) {
         console.error('Errore nel caricamento email:', error)
@@ -380,49 +381,49 @@ export default {
           id: 1,
           recipient_email: 'mario.rossi@email.com',
           recipient_name: 'Mario Rossi',
-          type: 'welcome',
+          template_type: 'welcome',
           subject: 'Benvenuto in Passepartout!',
-          status: 'sent',
+          status_type: 'sent',
           sent_at: '2025-10-18T10:30:00Z',
-          content: 'Ciao Mario, benvenuto nella nostra piattaforma...'
+          body: 'Ciao Mario, benvenuto nella nostra piattaforma...'
         },
         {
           id: 2,
           recipient_email: 'lucia.bianchi@email.com',
           recipient_name: 'Lucia Bianchi',
-          type: 'reset_password',
+          template_type: 'reset_password',
           subject: 'Reset della tua password',
-          status: 'sent',
+          status_type: 'sent',
           sent_at: '2025-10-18T09:15:00Z',
-          content: 'Hai richiesto di reimpostare la tua password...'
+          body: 'Hai richiesto di reimpostare la tua password...'
         },
         {
           id: 3,
           recipient_email: 'giuseppe.verdi@email.com',
           recipient_name: 'Giuseppe Verdi',
-          type: 'order_confirmation',
+          template_type: 'order_confirmation',
           subject: 'Conferma del tuo ordine #12345',
-          status: 'failed',
+          status_type: 'failed',
           sent_at: '2025-10-18T08:45:00Z',
-          content: 'Il tuo ordine è stato confermato...'
+          body: 'Il tuo ordine è stato confermato...'
         },
         {
           id: 4,
           recipient_email: 'anna.ferrari@email.com',
           recipient_name: 'Anna Ferrari',
-          type: 'newsletter',
+          template_type: 'newsletter',
           subject: 'Newsletter Ottobre 2025',
-          status: 'pending',
+          status_type: 'pending',
           sent_at: '2025-10-18T07:20:00Z',
-          content: 'Ecco le novità di questo mese...'
+          body: 'Ecco le novità di questo mese...'
         }
       ]
 
       stats.value = {
         total: emails.value.length,
-        sent: emails.value.filter(e => e.status === 'sent').length,
-        failed: emails.value.filter(e => e.status === 'failed').length,
-        pending: emails.value.filter(e => e.status === 'pending').length
+        sent: emails.value.filter(e => e.status_type === 'sent').length,
+        failed: emails.value.filter(e => e.status_type === 'failed').length,
+        pending: emails.value.filter(e => e.status_type === 'pending').length
       }
     }
 
@@ -445,14 +446,14 @@ export default {
 
     const resendEmail = async (email) => {
       try {
-        await axios.post(`/api/admin/emails/${email.id}/resend`)
+        await axios.post(`/emails/${email.id}/resend`)
         // Aggiorna lo stato dell'email
-        email.status = 'pending'
+        email.status_type = 'pending'
         console.log('Email reinviata')
       } catch (error) {
         console.error('Errore reinvio email:', error)
         // Per demo, simula il reinvio
-        email.status = 'pending'
+        email.status_type = 'pending'
       }
     }
 

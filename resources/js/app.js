@@ -19,13 +19,13 @@ import Products from './pages/products/Products.vue'
 import ProductDetail from './pages/products/ProductDetail.vue'
 import Cart from './pages/cart/Cart.vue'
 import Dashboard from './pages/admin/DashboardSimple.vue'
-import EmailLogs from './pages/admin/EmailLogs.vue'
-import ProductManagement from './pages/admin/ProductManagement.vue'
+import EmailLogs from './pages/admin/EmailLogsNew.vue'
+import ProductManagement from './pages/admin/ProductManagementNew.vue'
 
 // Import dei composables/stores
 import { useAuthStore } from './stores/auth'
 
-// Configurazione Axios
+// Configura Axios
 axios.defaults.baseURL = 'http://127.0.0.1:8000/api'
 axios.defaults.headers.common['Accept'] = 'application/json'
 axios.defaults.headers.common['Content-Type'] = 'application/json'
@@ -36,8 +36,21 @@ axios.interceptors.request.use((config) => {
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+    console.log('📤 Request:', config.method?.toUpperCase(), config.url, config.headers)
     return config
 })
+
+// Interceptor per gestire le risposte e gli errori
+axios.interceptors.response.use(
+    (response) => {
+        console.log('✅ Response:', response.status, response.config.url)
+        return response
+    },
+    (error) => {
+        console.error('❌ Error Response:', error.response?.status, error.response?.config?.url, error.response?.data)
+        return Promise.reject(error)
+    }
+)
 
 // Interceptor per gestire errori di autorizzazione
 axios.interceptors.response.use(
@@ -175,6 +188,7 @@ router.beforeEach(async (to, from, next) => {
 })
 
 // Crea l'app Vue
+console.log('🚀 Initializing Vue app...')
 const app = createApp(App)
 const pinia = createPinia()
 
@@ -184,4 +198,6 @@ app.use(router)
 // Configura axios come plugin globale
 app.config.globalProperties.$http = axios
 
+console.log('🎯 Mounting Vue app to #app...')
 app.mount('#app')
+console.log('✅ Vue app mounted successfully!')

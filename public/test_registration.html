@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Registrazione Frontend</title>
+</head>
+<body>
+    <h1>Test Registrazione Frontend</h1>
+    <p>Apri la console del browser per vedere i risultati del test.</p>
+    
+    <button onclick="manualTest()">Test Manuale</button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        const manualTest = async () => {
+            console.log('🧪 Inizio test manuale registrazione...');
+            
+            try {
+                // Configurazione axios come nel frontend
+                axios.defaults.baseURL = 'http://127.0.0.1:8000/api';
+                axios.defaults.headers.common['Accept'] = 'application/json';
+                axios.defaults.headers.common['Content-Type'] = 'application/json';
+                
+                // Dati di test
+                const userData = {
+                    nome: 'TestFrontend',
+                    cognome: 'UserTest',
+                    email: 'frontend' + Math.random() + '@test.com',
+                    password: 'password123',
+                    password_confirmation: 'password123',
+                    titolo_studi: 'Diploma',
+                    data_nascita: '1990-01-01',
+                    citta_nascita: 'Milano'
+                };
+                
+                console.log('📤 Invio dati:', userData);
+                
+                // Chiamata di registrazione
+                const response = await axios.post('/auth/register', userData);
+                
+                console.log('✅ Registrazione riuscita:', response.data);
+                console.log('📄 Status:', response.status);
+                console.log('📋 Headers:', response.headers);
+                
+            } catch (error) {
+                console.error('❌ Errore registrazione:', error);
+                console.error('📄 Status:', error.response?.status);
+                console.error('📋 Data:', error.response?.data);
+                console.error('📋 Headers:', error.response?.headers);
+            }
+        };
+        
+        // Test automatico al caricamento
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(manualTest, 1000);
+        });
+    </script>
+</body>
+</html>

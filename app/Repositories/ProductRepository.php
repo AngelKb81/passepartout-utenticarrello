@@ -27,12 +27,61 @@ class ProductRepository extends BaseRepository
     }
 
     /**
-     * Ottiene i prodotti attivi con paginazione.
+     * Ottiene i prodotti attivi con paginazione e filtri.
      */
-    public function getActiveProductsPaginated(int $perPage = 15): LengthAwarePaginator
+    public function getActiveProductsPaginated(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
+        $query = $this->model->active();
+
+        // Filtro per categoria
+        if (!empty($filters['categoria'])) {
+            $query->where('categoria', $filters['categoria']);
+        }
+
+        // Filtro per prezzo minimo
+        if (!empty($filters['min_price'])) {
+            $query->where('prezzo_attuale', '>=', $filters['min_price']);
+        }
+
+        // Filtro per prezzo massimo
+        if (!empty($filters['max_price'])) {
+            $query->where('prezzo_attuale', '<=', $filters['max_price']);
+        }
+
+        // Filtro per ricerca testuale
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $search = $filters['search'];
+                $q->where('nome', 'LIKE', "%{$search}%")
+                    ->orWhere('codice', 'LIKE', "%{$search}%")
+                    ->orWhere('descrizione', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Ordinamento
+        if (!empty($filters['sort'])) {
+            switch ($filters['sort']) {
+                case 'nome_asc':
+                    $query->orderBy('nome', 'asc');
+                    break;
+                case 'nome_desc':
+                    $query->orderBy('nome', 'desc');
+                    break;
+                case 'prezzo_asc':
+                    $query->orderBy('prezzo_attuale', 'asc');
+                    break;
+                case 'prezzo_desc':
+                    $query->orderBy('prezzo_attuale', 'desc');
+                    break;
+                default:
+                    $query->orderBy('created_at', 'desc');
+            }
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
         /** @var LengthAwarePaginator */
-        return $this->model->active()->paginate($perPage);
+        return $query->paginate($perPage);
     }
 
     /**
@@ -61,6 +110,69 @@ class ProductRepository extends BaseRepository
     {
         /** @var Product */
         return $this->model->where('codice', $code)->first();
+    }
+
+    /**
+     * Ottiene tutti i prodotti (inclusi inattivi) con paginazione e filtri - Solo per Admin.
+     */
+    public function getAllProductsPaginated(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        $query = $this->model->newQuery();
+
+        // Filtro per categoria
+        if (!empty($filters['categoria'])) {
+            $query->where('categoria', $filters['categoria']);
+        }
+
+        // Filtro per prezzo minimo
+        if (!empty($filters['min_price'])) {
+            $query->where('prezzo_attuale', '>=', $filters['min_price']);
+        }
+
+        // Filtro per prezzo massimo
+        if (!empty($filters['max_price'])) {
+            $query->where('prezzo_attuale', '<=', $filters['max_price']);
+        }
+
+        // Filtro per ricerca testuale
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $search = $filters['search'];
+                $q->where('nome', 'LIKE', "%{$search}%")
+                    ->orWhere('codice', 'LIKE', "%{$search}%")
+                    ->orWhere('descrizione', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filtro per stato attivo/inattivo
+        if (isset($filters['attivo'])) {
+            $query->where('attivo', $filters['attivo']);
+        }
+
+        // Ordinamento
+        if (!empty($filters['sort'])) {
+            switch ($filters['sort']) {
+                case 'nome_asc':
+                    $query->orderBy('nome', 'asc');
+                    break;
+                case 'nome_desc':
+                    $query->orderBy('nome', 'desc');
+                    break;
+                case 'prezzo_asc':
+                    $query->orderBy('prezzo_attuale', 'asc');
+                    break;
+                case 'prezzo_desc':
+                    $query->orderBy('prezzo_attuale', 'desc');
+                    break;
+                default:
+                    $query->orderBy('id', 'desc');
+            }
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        /** @var LengthAwarePaginator */
+        return $query->paginate($perPage);
     }
 
     /**

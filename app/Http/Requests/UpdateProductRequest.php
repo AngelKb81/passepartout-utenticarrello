@@ -11,7 +11,7 @@ class UpdateProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return $this->user() && $this->user()->isAdmin();
     }
 
     /**
@@ -22,7 +22,14 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'nome' => ['sometimes', 'string', 'max:255'],
+            'descrizione' => ['sometimes', 'string'],
+            'prezzo' => ['sometimes', 'numeric', 'min:0'],
+            'categoria' => ['sometimes', 'string', 'max:255'],
+            'immagine' => ['sometimes', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
+            'scorte' => ['sometimes', 'integer', 'min:0'],
+            'attivo' => ['sometimes', 'boolean'],
+            'disponibile' => ['sometimes', 'boolean'],
         ];
     }
 }

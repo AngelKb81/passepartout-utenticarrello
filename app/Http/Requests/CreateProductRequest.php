@@ -24,6 +24,7 @@ class CreateProductRequest extends FormRequest
             'nome' => ['required', 'string', 'max:255'],
             'codice' => ['required', 'string', 'max:100', 'unique:products,codice'],
             'descrizione' => ['required', 'string'],
+            'categoria' => ['required', 'string', 'max:100'],
             'prezzo' => ['required', 'numeric', 'min:0.01'],
             'immagine' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'], // 5MB
             'attivo' => ['nullable', 'boolean'],
@@ -41,6 +42,7 @@ class CreateProductRequest extends FormRequest
             'codice.required' => 'Il codice prodotto è obbligatorio.',
             'codice.unique' => 'Questo codice prodotto è già in uso.',
             'descrizione.required' => 'La descrizione è obbligatoria.',
+            'categoria.required' => 'La categoria è obbligatoria.',
             'prezzo.required' => 'Il prezzo è obbligatorio.',
             'prezzo.numeric' => 'Il prezzo deve essere un numero valido.',
             'prezzo.min' => 'Il prezzo deve essere maggiore di zero.',

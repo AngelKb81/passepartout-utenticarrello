@@ -39,6 +39,14 @@ class EmailLogController extends Controller
 
         $emails = $query->paginate($request->get('per_page', 20));
 
+        // Trasforma i dati per compatibilità frontend
+        $emails->getCollection()->transform(function ($email) {
+            $email->status_type = $email->status;
+            $email->template_type = $email->type;
+            $email->body = $email->content;
+            return $email;
+        });
+
         return response()->json($emails);
     }
 
@@ -49,6 +57,11 @@ class EmailLogController extends Controller
     {
         $email = UserEmail::with('user:id,nome,cognome,email')
             ->findOrFail($id);
+
+        // Trasforma i dati per compatibilità frontend
+        $email->status_type = $email->status;
+        $email->template_type = $email->type;
+        $email->body = $email->content;
 
         return response()->json($email);
     }
