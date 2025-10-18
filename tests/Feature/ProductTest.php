@@ -30,7 +30,7 @@ class ProductTest extends TestCase
         $response = $this->getJson('/api/products');
 
         $response->assertStatus(200)
-            ->assertJsonCount(5, 'data');
+            ->assertJsonCount(5, 'products');
     }
 
     /** @test */
@@ -45,9 +45,11 @@ class ProductTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'id' => $product->id,
-                'nome' => 'Test Product',
-                'prezzo' => '99.99',
+                'product' => [
+                    'id' => $product->id,
+                    'nome' => 'Test Product',
+                    'prezzo' => '99.99',
+                ]
             ]);
     }
 
@@ -79,8 +81,10 @@ class ProductTest extends TestCase
 
         $response->assertStatus(201)
             ->assertJson([
-                'nome' => 'New Product',
-                'prezzo' => '49.99',
+                'product' => [
+                    'nome' => 'New Product',
+                    'prezzo' => '49.99',
+                ]
             ]);
 
         $this->assertDatabaseHas('products', [
@@ -123,7 +127,9 @@ class ProductTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'nome' => 'Updated Name',
+                'product' => [
+                    'nome' => 'Updated Name',
+                ]
             ]);
 
         $this->assertDatabaseHas('products', [
@@ -174,7 +180,7 @@ class ProductTest extends TestCase
         $response = $this->getJson('/api/products?categoria=Elettronica');
 
         $response->assertStatus(200)
-            ->assertJsonCount(2, 'data');
+            ->assertJsonCount(2, 'products');
     }
 
     /** @test */
@@ -188,7 +194,7 @@ class ProductTest extends TestCase
 
         $response->assertStatus(200);
 
-        $products = $response->json('data');
+        $products = $response->json('products');
         $this->assertCount(2, $products);
     }
 

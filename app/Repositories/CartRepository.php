@@ -182,13 +182,21 @@ class CartRepository extends BaseRepository
         $cart = $this->getActiveCartByUser($userId);
 
         if (!$cart) {
-            return false;
+            throw new \Exception('Carrello non trovato');
         }
 
-        $cartItem = $cart->items()->where('id', $cartItemId)->first();
-
-        if (!$cartItem) {
-            return false;
+        // Prima verifica se l'item esiste (per qualsiasi utente)
+        $itemExists = \App\Models\CartItem::where('id', $cartItemId)->exists();
+        
+        if ($itemExists) {
+            // L'item esiste ma cerchiamo nel carrello dell'utente corrente
+            $cartItem = $cart->items()->where('id', $cartItemId)->first();
+            
+            if (!$cartItem) {
+                throw new \InvalidArgumentException('AUTHORIZATION_ERROR:Non autorizzato a modificare questo carrello');
+            }
+        } else {
+            throw new \Exception('Articolo non trovato');
         }
 
         $cartItem->delete();

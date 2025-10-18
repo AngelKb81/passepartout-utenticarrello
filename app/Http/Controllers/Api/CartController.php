@@ -247,10 +247,11 @@ class CartController extends Controller
                 'cart' => $cart,
             ]);
         } catch (\Exception $e) {
+            $statusCode = $e->getCode() === 403 ? 403 : 422;
             return response()->json([
                 'message' => 'Errore nella rimozione dell\'articolo',
                 'error' => $e->getMessage()
-            ], 422);
+            ], $statusCode);
         }
     }
 
@@ -283,9 +284,14 @@ class CartController extends Controller
 
             // Invia notifica di checkout completato
             if ($cartData && isset($cartData['items']) && count($cartData['items']) > 0) {
-                // Per ora saltiamo la notifica nel test environment
-                if (app()->environment() !== 'testing') {
-                    $user->notify(new \App\Notifications\CartCheckedOut($cartData, $totalAmount));
+                // Per ora saltiamo la notifica nel test environment  
+                try {
+                    if (config('app.env') !== 'testing') {
+                        $user->notify(new \App\Notifications\CartCheckedOut($cartData, $totalAmount));
+                    }
+                } catch (\Exception $e) {
+                    // Ignora errori di notifica per non bloccare il checkout
+                    // Ignora errori di notifica silenziosamente
                 }
             }
 

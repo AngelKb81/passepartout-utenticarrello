@@ -117,9 +117,15 @@ class CartService
      */
     public function removeCartItemById(int $userId, int $cartItemId): array
     {
-        $this->cartRepository->removeCartItemById($userId, $cartItemId);
-
-        return $this->getUserCart($userId);
+        try {
+            $this->cartRepository->removeCartItemById($userId, $cartItemId);
+            return $this->getUserCart($userId);
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'AUTHORIZATION_ERROR:')) {
+                throw new \Exception(str_replace('AUTHORIZATION_ERROR:', '', $e->getMessage()), 403);
+            }
+            throw $e;
+        }
     }
 
     /**
