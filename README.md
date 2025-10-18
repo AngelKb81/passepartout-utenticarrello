@@ -23,11 +23,9 @@ Sistema full-stack per gestione utenti, carrello prodotti e dashboard amministra
 - ✅ Sistema scorte e disponibilità
 
 ### 📊 Dashboard Amministrativa
-- 🔄 Statistiche utenti registrati (grafici mensili)
-- 🔄 Top prodotti nei carrelli e bestseller
-- 🔄 Fatturato simulato per mese
-- 🔄 Distribuzione utenti per città/titolo studi
-- 🔄 Grafici interattivi con Chart.js
+- modifica e crezione prodotti
+- pagine di email mandate agli users
+- statistiche (alcune mokkate per completare la view).
 
 ## 🛠️ Stack Tecnologico
 
@@ -73,7 +71,7 @@ app/
 ## 💾 Database Schema
 
 ```sql
-users (id, name, cognome, email, titolo_studi, data_nascita, città_nascita)
+users (id, nome, cognome, email, titolo_studi, data_nascita, città_nascita)
 roles (id, name, display_name, description)  
 role_user (role_id, user_id) -- many-to-many
 products (id, nome, codice, descrizione, prezzo, immagine, scorte)
@@ -136,7 +134,6 @@ DB_PASSWORD=la_tua_password
 L'applicazione invia email per:
 - ✅ Benvenuto dopo registrazione
 - ✅ Reset password  
-- ✅ Conferma checkout ordini
 
 **⚠️ Per il testing, le email sono disabilitate nei test automatici**
 
@@ -167,10 +164,9 @@ Dopo `php artisan migrate:fresh --seed` avrai:
 - 3 Utenti standard con profili completi (nome, cognome, titoli studio diversi)
 
 **📦 Prodotti (10 totali):**
-- Categorie: Elettronica, Abbigliamento, Sport, Libri
-- Prezzi realistici da €15 a €150
+- Categorie: Smartphone, Computer, Audio, Tablet, Wearabl, Fotocamera, Gaming, Networking, Monitor ecc cc.
 - Scorte variabili per testare disponibilità
-- Immagini placeholder
+- Immagini placeholder (generate con AI)
 
 **🛒 Carrelli Pre-esistenti:**
 - Alcuni utenti hanno già carrelli con prodotti
@@ -277,14 +273,6 @@ php artisan test --filter ExampleTest           # ✅ 2/2
 
 **🔍 Database Test:** Usa SQLite in memoria per isolamento completo
 
-## ⚡ Performance e Specifiche
-
-**📈 Metriche di Performance:**
-- Tempo caricamento homepage: ~200ms
-- API response time: <100ms (media)
-- Test suite completa: ~10 secondi
-- Memory usage: ~50MB (development)
-
 **🔧 Requisiti Sistema:**
 - **PHP:** 8.2+ (compatibile con 8.3)
 - **MySQL:** 8.0+ o MariaDB 10.3+
@@ -320,19 +308,9 @@ php artisan test --filter ExampleTest           # ✅ 2/2
 - ✅ Dependency Injection
 - ✅ API RESTful strutturate
 
-## 🔮 Roadmap Future
-
-- [ ] Sistema notifiche real-time
-- [ ] Integrazione pagamenti Stripe
-- [ ] Export/Import prodotti CSV
-- [ ] Sistema recensioni prodotti
-- [ ] Multi-language support
-- [ ] Progressive Web App (PWA)
-- [ ] Docker containerization
-
 ## 🤝 Contributi
 
-Progetto sviluppato come **code challenge** per dimostrare competenze full-stack con Laravel e Vue.js.
+Progetto sviluppato come **code challenge** per dimostrare competenze full-stack.
 
 ### Scelte Architetturali
 
@@ -397,16 +375,11 @@ php artisan test --env=testing
 **Per segnalazioni/domande:**
 - **Sviluppatore:** Angelo Corbelli
 - **GitHub:** [AngelKb81/passepartout-utenticarrello](https://github.com/AngelKb81/passepartout-utenticarrello)
-- **Email:** angelo@example.com
-
-## 📜 Licenza
-
-Progetto open source sotto **MIT License** - Libero per uso commerciale e personale.
+- **Email:** angelo.corbelli81@gmail.com
 
 ---
 
-**🚀 Developed with ❤️  by Angelo Corbelli**  
-*Full-Stack Developer | Laravel & Vue.js Specialist*
+**🚀 Developed with ❤️  by Angelo Corbelli** 
 
 ## 🌐 Guida Completa per il Testing
 
@@ -414,7 +387,7 @@ Progetto open source sotto **MIT License** - Libero per uso commerciale e person
 
 **1. Homepage e Navigazione**
 - Vai su `http://127.0.0.1:8000`
-- Testa la navigazione tra Home, Prodotti, Chi Siamo
+- Testa la navigazione tra Home, Prodotti
 - Verifica responsive design (mobile/desktop)
 
 **2. Registrazione Utente**
@@ -434,10 +407,9 @@ Progetto open source sotto **MIT License** - Libero per uso commerciale e person
 - Procedi al checkout (simulato)
 
 **5. Area Admin** (login con admin@passepartout-utenticarrello.test)
-- Dashboard con grafici Chart.js
+- Dashboard con grafici Chart.js (alcuni mokkati solo per view)
 - Gestione prodotti (CRUD completo)
 - Logs email inviati
-- Statistiche utenti e vendite
 
 ### 🔧 Test API (Postman/curl)
 
@@ -475,81 +447,3 @@ curl -X POST http://127.0.0.1:8000/api/cart/add \
 curl -X GET http://127.0.0.1:8000/api/cart \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
-
-## 🎨 Screenshot
-
-### Homepage
-- Catalogo prodotti responsive
-- Ricerca e filtri avanzati
-- Navigazione intuitiva
-
-### Dashboard Admin
-- Grafici interattivi con Chart.js
-- Statistiche utenti per ruolo
-- Analisi geografica e demografica
-- Fatturato mensile
-
-### Carrello
-- Gestione quantità in tempo reale
-- Calcolo totali automatico
-- Checkout semplificato
-
-## 📊 Dati di Test
-
-Il seeder popola il database con:
-- **3 ruoli**: Admin, User, Business
-- **1 admin**: admin@passepartout-utenticarrello.test
-- **10+ utenti** di test con dati realistici
-- **50+ prodotti** in varie categorie
-- **Carrelli** precompilati per testing
-
-## 🔍 Troubleshooting
-
-### Errori Comuni
-
-**Vite non parte:**
-```bash
-npm install
-npm run dev
-```
-
-**Errori database:**
-```bash
-php artisan migrate:fresh --seed
-```
-
-**Errori permessi storage:**
-```bash
-chmod -R 775 storage bootstrap/cache
-php artisan storage:link
-```
-
-**Cache problematiche:**
-```bash
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-```
-
-## 📞 Supporto
-
-Per problemi o domande:
-- **GitHub Issues**: [Apri una issue](https://github.com/AngelKb81/passepartout-utenticarrello/issues)
-- **Email**: angelo@example.com
-
-## 🙏 Ringraziamenti
-
-- Laravel Team per il framework eccezionale
-- Vue.js Core Team per Vue 3
-- Tailwind Labs per Tailwind CSS
-- Chart.js Team per le visualizzazioni
-- Community open source
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability, please send an e-mail to angelo@example.com. All security vulnerabilities will be promptly addressed.
-
-## License
-
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
